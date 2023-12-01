@@ -8,6 +8,10 @@ add_rules("plugin.compile_commands.autoupdate", {outputdir = "build"})
 set_policy("build.across_targets_in_parallel", false)
 set_policy("check.auto_ignore_flags", false)
 
+add_requires("brpc")
+add_requires("fmt")
+add_requires("spdlog")
+
 add_includedirs("include")
 
 includes("src")
