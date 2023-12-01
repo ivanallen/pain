@@ -1,0 +1,4 @@
+syntax = "proto3";
+package pain;
+
+message UUID { string value = 1; }

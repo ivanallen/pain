@@ -1,0 +1,25 @@
+syntax = "proto3";
+package pain.manusya;
+
+import "common.proto";
+
+option cc_generic_services = true;
+
+message CreateChunkRequest {};
+message CreateChunkResponse { UUID uuid = 1; };
+
+message AppendChunkRequest {};
+message AppendChunkResponse {};
+
+message SealChunkRequest {};
+message SealChunkResponse {};
+
+message RemoveChunkRequest {};
+message RemoveChunkResponse {};
+
+service ManusyaService {
+  rpc create_chunk(CreateChunkRequest) returns (CreateChunkResponse);
+  rpc append_chunk(AppendChunkRequest) returns (AppendChunkResponse);
+  rpc seal_chunk(SealChunkRequest) returns (SealChunkResponse);
+  rpc remove_chunk(RemoveChunkRequest) returns (RemoveChunkResponse);
+};

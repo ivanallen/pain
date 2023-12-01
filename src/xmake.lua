@@ -1,4 +1,5 @@
 includes("base")
+includes("core")
 includes("deva")
 includes("manusya")
 includes("asura")
