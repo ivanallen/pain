@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pain.manusya;
 
-import "common.proto";
+import "core/common.proto";
 
 option cc_generic_services = true;
 

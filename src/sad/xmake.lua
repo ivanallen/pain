@@ -1,4 +1,4 @@
-target("manusya")
+target("sad")
     set_kind("binary")
     add_files("**.cc")
     add_deps("core")
