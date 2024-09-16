@@ -35,4 +35,15 @@ void print(const brpc::Controller &cntl,
   fmt::print("{}\n", out.dump(2));
 }
 
+std::string format_command(const std::string &name) {
+  std::string name_;
+  for (auto c : name) {
+    if (c == '_') {
+      c = '-';
+    }
+    name_ += c;
+  }
+  return name_;
+}
+
 } // namespace pain::sad

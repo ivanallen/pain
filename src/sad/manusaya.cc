@@ -1,4 +1,5 @@
 #include "sad/common.h"
+#include "sad/macro.h"
 #include <argparse/argparse.hpp>
 #include <brpc/channel.h>
 #include <brpc/controller.h>
@@ -10,14 +11,18 @@
 
 using Status = butil::Status;
 
-#define COMMAND(name)                                                          \
-  butil::Status name(argparse::ArgumentParser &);                              \
-  struct __add_##name {                                                        \
-    __add_##name() { add(#name, name); }                                       \
-  } __add_##name##_instance;                                                   \
-  butil::Status name(argparse::ArgumentParser &args)
+#define MANUSYA_ARGS(cmd) ARGS(cmd, manusya_parser)
 
+namespace pain::sad {
+extern argparse::ArgumentParser program;
+}
 namespace pain::sad::manusya {
+argparse::ArgumentParser manusya_parser("manusya", "1.0",
+                                        argparse::default_arguments::none);
+
+RUN(program.add_subparser(manusya_parser));
+RUN(manusya_parser.add_argument("--host").default_value(
+    std::string("127.0.0.1:8003")));
 
 static std::map<std::string, std::function<Status(argparse::ArgumentParser &)>>
     subcommands = {};
@@ -44,6 +49,7 @@ Status execute(argparse::ArgumentParser &parser) {
   std::exit(1);
 }
 
+RUN(MANUSYA_ARGS(create_chunk).add_description("create chunk"));
 COMMAND(create_chunk) {
   auto host = args.get<std::string>("--host");
   brpc::Channel channel;
@@ -65,6 +71,10 @@ COMMAND(create_chunk) {
   return Status::OK();
 }
 
+RUN(MANUSYA_ARGS(append_chunk)
+        .add_description("append chunk")
+        .add_argument("-c", "--chunk-id")
+        .required());
 COMMAND(append_chunk) {
   auto chunk_id = args.get<std::string>("--chunk-id");
   auto host = args.get<std::string>("--host");
