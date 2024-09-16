@@ -18,6 +18,7 @@ add_requires("fmt")
 add_requires("spdlog")
 add_requires("boost")
 add_requires("gtest")
+add_requires("argparse")
 
 add_includedirs("include")
 add_includedirs("src")
