@@ -3,6 +3,8 @@
 #include <butil/time.h>
 #include <gflags/gflags.h>
 
+#include "base/plog.h"
+#include "base/spdlog_sink.h"
 #include "core/manusya.pb.h"
 
 DEFINE_bool(send_attachment, true, "Carry attachment along with requests");
@@ -32,6 +34,10 @@ void HandleCreateChunkResponse(brpc::Controller *cntl,
 int main(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
 
+  static pain::base::SpdlogSink spdlog_sink;
+  logging::SetLogSink(&spdlog_sink);
+  PLOG_INFO(("desc", "sad start"));
+
   brpc::Channel channel;
 
   brpc::ChannelOptions options;
@@ -41,7 +47,7 @@ int main(int argc, char *argv[]) {
   options.max_retry = FLAGS_max_retry;
   if (channel.Init(FLAGS_server.c_str(), FLAGS_load_balancer.c_str(),
                    &options) != 0) {
-    LOG(ERROR) << "Fail to initialize channel";
+    PLOG_ERROR(("desc", "Fail to initialize channel"));
     return -1;
   }
 

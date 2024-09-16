@@ -20,5 +20,6 @@ add_requires("boost")
 add_requires("gtest")
 
 add_includedirs("include")
+add_includedirs("src")
 
 includes("src")

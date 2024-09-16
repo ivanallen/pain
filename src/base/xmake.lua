@@ -1,0 +1,5 @@
+target("base")
+    set_kind("headeronly")
+    add_headerfiles("**.h")
+    add_packages("boost", {public = true})
+    add_packages("brpc", {public = true})
