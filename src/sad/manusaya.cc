@@ -21,8 +21,9 @@ argparse::ArgumentParser manusya_parser("manusya", "1.0",
                                         argparse::default_arguments::none);
 
 RUN(program.add_subparser(manusya_parser));
-RUN(manusya_parser.add_argument("--host").default_value(
-    std::string("127.0.0.1:8003")));
+RUN(manusya_parser.add_description("send cmd to manusya server")
+        .add_argument("--host")
+        .default_value(std::string("127.0.0.1:8003")));
 
 static std::map<std::string, std::function<Status(argparse::ArgumentParser &)>>
     subcommands = {};
@@ -74,7 +75,8 @@ COMMAND(create_chunk) {
 RUN(MANUSYA_ARGS(append_chunk)
         .add_description("append chunk")
         .add_argument("-c", "--chunk-id")
-        .required());
+        .required()
+        .help("chunk uuid, such as 123e4567-e89b-12d3-a456-426655440000"));
 COMMAND(append_chunk) {
   auto chunk_id = args.get<std::string>("--chunk-id");
   auto host = args.get<std::string>("--host");
