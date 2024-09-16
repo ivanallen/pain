@@ -93,7 +93,6 @@ struct LoggerOptions {
   size_t async_threads = 1;
 };
 
-namespace logger {
 // defining "log_tp" will start a thread for processing log printing
 inline static auto make_logger(const LoggerOptions &logger_options) {
   auto rotating_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
@@ -120,5 +119,5 @@ inline static auto make_logger(const LoggerOptions &logger_options) {
   });
   return flush_log;
 }
-}; // namespace logger
+
 } // namespace pain::base

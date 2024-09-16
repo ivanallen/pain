@@ -6,6 +6,7 @@
 #include "base/plog.h"
 #include "base/spdlog_sink.h"
 #include "core/manusya.pb.h"
+#include "spdlog/common.h"
 
 DEFINE_bool(send_attachment, true, "Carry attachment along with requests");
 DEFINE_string(protocol, "baidu_std",
@@ -16,6 +17,7 @@ DEFINE_string(server, "0.0.0.0:8003", "IP Address of server");
 DEFINE_string(load_balancer, "", "The algorithm for load balancing");
 DEFINE_int32(timeout_ms, 100, "RPC timeout in milliseconds");
 DEFINE_int32(max_retry, 3, "Max retries(not including the first RPC)");
+DEFINE_string(log_level, "debug", "log level");
 
 void HandleCreateChunkResponse(brpc::Controller *cntl,
                                pain::manusya::CreateChunkResponse *response) {
@@ -33,6 +35,14 @@ void HandleCreateChunkResponse(brpc::Controller *cntl,
 
 int main(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
+
+  pain::base::LoggerOptions logger_options = {
+      .file_name = "sad.log",
+      .name = "sad",
+      .level_log = spdlog::level::from_str(FLAGS_log_level),
+      .async_threads = 1,
+  };
+  static auto flush_log = pain::base::make_logger(logger_options);
 
   static pain::base::SpdlogSink spdlog_sink;
   logging::SetLogSink(&spdlog_sink);
