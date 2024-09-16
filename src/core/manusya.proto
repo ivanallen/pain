@@ -17,9 +17,13 @@ message SealChunkResponse {};
 message RemoveChunkRequest {};
 message RemoveChunkResponse {};
 
+message ListChunkRequest {};
+message ListChunkResponse { repeated UUID uuids = 1; };
+
 service ManusyaService {
   rpc create_chunk(CreateChunkRequest) returns (CreateChunkResponse);
   rpc append_chunk(AppendChunkRequest) returns (AppendChunkResponse);
   rpc seal_chunk(SealChunkRequest) returns (SealChunkResponse);
   rpc remove_chunk(RemoveChunkRequest) returns (RemoveChunkResponse);
+  rpc list_chunk(ListChunkRequest) returns (ListChunkResponse);
 };

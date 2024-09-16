@@ -10,6 +10,11 @@ set_policy("check.auto_ignore_flags", false)
 
 add_repositories("pain-repo pain-repo")
 
+if is_mode("debug") then
+    add_cxxflags("-fsanitize=address")
+    add_ldflags("-fsanitize=address")
+end
+
 add_requires("protobuf-cpp", {configs = {zlib = true}})
 add_requireconfs("**.protobuf-cpp", {override=true, configs = {zlib = true}})
 
@@ -19,6 +24,7 @@ add_requires("spdlog")
 add_requires("boost")
 add_requires("gtest")
 add_requires("argparse")
+add_requires("fmt")
 
 add_includedirs("include")
 add_includedirs("src")

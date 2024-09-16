@@ -1,6 +1,7 @@
 target("manusya")
     set_kind("binary")
     add_files("**.cc")
+    add_deps("base")
     add_deps("core")
     add_packages("spdlog")
     add_packages("brpc")
