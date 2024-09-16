@@ -14,7 +14,7 @@ void init() {
   manusya_parser.add_description("send cmd to manusya server");
   manusya_parser.add_subparser(create_chunk_parser);
   manusya_parser.add_subparser(append_chunk_parser);
-  surface_parser.add_argument("-h", "--host")
+  surface_parser.add_argument("--host")
       .default_value(std::string("127.0.0.1:8003"))
       .help("ip port of this server");
   create_chunk_parser.add_parents(surface_parser);
@@ -29,7 +29,6 @@ void init() {
 
 // clang-format off
 void init(int argc, char *argv[]) {
-  program.add_argument("--log-level").default_value(std::string("debug")).required().help("specify the log level");
   program.add_subparser(manusya::manusya_parser);
 
   program.add_argument("--log-level")

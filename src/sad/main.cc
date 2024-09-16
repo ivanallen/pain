@@ -34,6 +34,8 @@ int main(int argc, char *argv[]) {
   auto status = pain::sad::execute(pain::sad::program);
   if (!status.ok()) {
     PLOG_ERROR(("desc", "sad exit")("status", status.error_str()));
+    fmt::print(stderr, R"({{"status":{},"message":"{}"}}{})",
+               status.error_code(), status.error_str(), "\n");
     return EXIT_FAILURE;
   }
   return 0;

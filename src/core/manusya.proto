@@ -8,7 +8,10 @@ option cc_generic_services = true;
 message CreateChunkRequest {};
 message CreateChunkResponse { UUID uuid = 1; };
 
-message AppendChunkRequest {};
+message AppendChunkRequest {
+  UUID uuid = 1;
+};
+
 message AppendChunkResponse {};
 
 message SealChunkRequest {};

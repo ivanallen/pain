@@ -11,6 +11,10 @@ public:
                     const CreateChunkRequest *request,
                     CreateChunkResponse *response,
                     google::protobuf::Closure *done) override;
+  void append_chunk(google::protobuf::RpcController *cntl_base,
+                    const AppendChunkRequest *request,
+                    AppendChunkResponse *response,
+                    google::protobuf::Closure *done) override;
 };
 
 } // namespace pain::manusya
