@@ -1,5 +1,6 @@
 #pragma once
 
+#include "base/uuid.h"
 #include "core/manusya.pb.h"
 #include "manusya/chunk.h"
 
@@ -20,8 +21,12 @@ public:
                   const ListChunkRequest *request, ListChunkResponse *response,
                   google::protobuf::Closure *done) override;
 
+  void read_chunk(google::protobuf::RpcController *controller,
+                  const ReadChunkRequest *request, ReadChunkResponse *response,
+                  google::protobuf::Closure *done) override;
+
 private:
-  std::map<UUIDv4::UUID, ChunkPtr> _chunks;
+  std::map<base::UUID, ChunkPtr> _chunks;
 };
 
 } // namespace pain::manusya

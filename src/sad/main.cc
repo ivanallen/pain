@@ -7,9 +7,11 @@
 #include <gflags/gflags.h>
 
 #include "base/plog.h"
+#include "base/scope_exit.h"
 #include "base/spdlog_sink.h"
 #include "base/tracer.h"
 #include "sad/common.h"
+#include "sad/macro.h"
 #include "spdlog/common.h"
 
 namespace pain::sad {
@@ -33,14 +35,19 @@ int main(int argc, char *argv[]) {
   logging::SetLogSink(&spdlog_sink);
   PLOG_WARN(("desc", "sad start"));
   pain::base::init_tracer("sad");
-
-  auto status = pain::sad::execute(pain::sad::program);
-  if (!status.ok()) {
-    PLOG_ERROR(("desc", "sad exit")("status", status.error_str()));
-    pain::sad::print(status);
+  auto cleanup_tracer = pain::base::make_scope_exit([] {
     pain::base::cleanup_tracer();
-    return EXIT_FAILURE;
+    PLOG_WARN(("desc", "sad exit"));
+  });
+
+  {
+    SPAN(span, "sad");
+    auto status = pain::sad::execute(pain::sad::program);
+    if (!status.ok()) {
+      PLOG_ERROR(("desc", "sad exit")("status", status.error_str()));
+      pain::sad::print(status);
+      return EXIT_FAILURE;
+    }
   }
-  pain::base::cleanup_tracer();
   return 0;
 }

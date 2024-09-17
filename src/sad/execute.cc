@@ -15,8 +15,8 @@ Status execute(argparse::ArgumentParser &parser);
 } // namespace manusya
 
 Status execute(argparse::ArgumentParser &parser) {
-  SPAN(span);
   if (parser.is_subcommand_used("manusya")) {
+    SPAN(span, "manusya");
     return manusya::execute(parser.at<argparse::ArgumentParser>("manusya"));
   }
   std::cerr << parser;
