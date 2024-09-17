@@ -1,7 +1,9 @@
 #include "sad/common.h"
-#include "base/tracer.h"
+
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
+
+#include "base/tracer.h"
 
 using json = nlohmann::ordered_json;
 using Status = butil::Status;
