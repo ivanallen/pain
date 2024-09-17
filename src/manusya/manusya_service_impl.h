@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/manusya.pb.h"
+#include "manusya/chunk.h"
 
 namespace pain::manusya {
 class ManusyaServiceImpl : public ManusyaService {
@@ -15,6 +16,12 @@ public:
                     const AppendChunkRequest *request,
                     AppendChunkResponse *response,
                     google::protobuf::Closure *done) override;
+  void list_chunk(google::protobuf::RpcController *controller,
+                  const ListChunkRequest *request, ListChunkResponse *response,
+                  google::protobuf::Closure *done) override;
+
+private:
+  std::map<UUIDv4::UUID, ChunkPtr> _chunks;
 };
 
 } // namespace pain::manusya

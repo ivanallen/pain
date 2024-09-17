@@ -3,6 +3,7 @@
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
+#include "base/plog.h"
 #include "base/tracer.h"
 
 using json = nlohmann::ordered_json;
@@ -34,7 +35,8 @@ void print(const Status &status) {
 }
 
 void print(const brpc::Controller &cntl,
-           const google::protobuf::Message *message) {
+           const google::protobuf::Message *message,
+           std::function<void(json &)> f) {
   json out;
   out["header"] = {
       {"status", cntl.ErrorCode()},
@@ -47,6 +49,15 @@ void print(const brpc::Controller &cntl,
     auto j = pb_to_json(*message);
     out.merge_patch(j);
   }
+
+  try {
+    if (f) {
+      f(out);
+    }
+  } catch (const std::exception &e) {
+    PLOG_ERROR(("desc", "failed to call user function")("error", e.what()));
+  }
+
   fmt::print("{}\n", out.dump(2));
 }
 

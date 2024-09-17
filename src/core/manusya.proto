@@ -23,8 +23,24 @@ message SealChunkResponse {};
 message RemoveChunkRequest {};
 message RemoveChunkResponse {};
 
-message ListChunkRequest {};
+message ListChunkRequest {
+  UUID start = 1;
+  uint32 limit = 2;
+};
+
 message ListChunkResponse { repeated UUID uuids = 1; };
+
+message ReadChunkRequest {
+  UUID uuid = 1;
+  uint64 offset = 2;
+  uint32 length = 3;
+};
+
+message ReadChunkResponse {
+  uint64 offset = 1;
+  uint32 length = 2;
+  uint32 digest = 3;
+};
 
 service ManusyaService {
   rpc create_chunk(CreateChunkRequest) returns (CreateChunkResponse);
@@ -32,4 +48,5 @@ service ManusyaService {
   rpc seal_chunk(SealChunkRequest) returns (SealChunkResponse);
   rpc remove_chunk(RemoveChunkRequest) returns (RemoveChunkResponse);
   rpc list_chunk(ListChunkRequest) returns (ListChunkResponse);
+  rpc read_chunk(ReadChunkRequest) returns (ReadChunkResponse);
 };

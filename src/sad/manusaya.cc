@@ -6,6 +6,7 @@
 #include <core/manusya.pb.h>
 #include <fmt/format.h>
 #include <json2pb/pb_to_json.h>
+#include <uuid_v4/uuid_v4.h>
 
 #include "base/tracer.h"
 #include "sad/common.h"
@@ -73,7 +74,12 @@ COMMAND(create_chunk) {
     return Status(cntl.ErrorCode(), cntl.ErrorText());
   }
 
-  print(cntl, &response);
+  print(cntl, &response, [](json &out) {
+    uint64_t low = out["uuid"]["low"];
+    uint64_t high = out["uuid"]["high"];
+    UUIDv4::UUID uuid(high, low);
+    out["uuid"] = uuid.str();
+  });
   return Status::OK();
 }
 
@@ -108,6 +114,38 @@ COMMAND(append_chunk) {
   }
 
   print(cntl, &response);
+  return Status::OK();
+}
+
+RUN(MANUSYA_ARGS(list_chunk).add_description("list chunk"));
+COMMAND(list_chunk) {
+  SPAN(span);
+  auto host = args.get<std::string>("--host");
+  brpc::Channel channel;
+  brpc::ChannelOptions options;
+  if (channel.Init(host.c_str(), &options) != 0) {
+    return Status(EAGAIN, "Fail to initialize channel");
+  }
+
+  brpc::Controller cntl;
+  pain::manusya::ListChunkRequest request;
+  pain::manusya::ListChunkResponse response;
+  pain::manusya::ManusyaService::Stub stub(&channel);
+  base::inject_tracer(&cntl);
+  stub.list_chunk(&cntl, &request, &response, nullptr);
+  if (cntl.Failed()) {
+    return Status(cntl.ErrorCode(), cntl.ErrorText());
+  }
+
+  print(cntl, &response, [](json &out) {
+    for (auto &uuid : out["uuids"]) {
+      uint64_t low = uuid["low"];
+      uint64_t high = uuid["high"];
+      UUIDv4::UUID uuid_(high, low);
+      uuid = uuid_.str();
+    }
+  });
+
   return Status::OK();
 }
 
