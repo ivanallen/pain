@@ -13,15 +13,20 @@ def build_project(args):
     pass
 
 def format_project():
-    run_in_shell('find src -iname "*.h" -o -iname "*.cc" | xargs clang-format -i')
-    run_in_shell('find include -iname "*.h" -o -iname "*.cc" | xargs clang-format -i')
+    run_in_shell('find include src -iname "*.h" -o -iname "*.cc" | xargs clang-format -i')
     run_in_shell('git --no-pager diff')
+
+def line_project():
+    run_in_shell('find include src -iname "*.h" -o -iname "*.cc" | xargs wc -l')
 
 def main(args):
     if args.subparser_name == 'format':
         format_project()
     elif args.subparser_name == 'build':
         build_project(args)
+    elif args.subparser_name == 'line':
+        line_project()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Description of your program')
@@ -30,5 +35,6 @@ if __name__ == "__main__":
     format_parser = subparsers.add_parser('format')
     build_parser = subparsers.add_parser('build')
     build_parser.add_argument('rest', nargs=argparse.REMAINDER)
+    line_parser = subparsers.add_parser('line')
     args = parser.parse_args()
     main(args)
