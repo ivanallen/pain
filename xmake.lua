@@ -26,6 +26,7 @@ add_requires("gtest")
 add_requires("argparse")
 add_requires("fmt")
 add_requires("nlohmann_json")
+add_requires("opentelemetry-cpp")
 
 add_includedirs("include")
 add_includedirs("src")

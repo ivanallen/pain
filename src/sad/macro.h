@@ -20,3 +20,8 @@
     __add_##name() { add(#name, name); }                                       \
   } __add_##name##_instance;                                                   \
   butil::Status name(argparse::ArgumentParser &args)
+
+#define SPAN(span)                                                             \
+  auto tracer = pain::base::get_tracer("sad");                                 \
+  auto span = tracer->StartSpan(__func__);                                     \
+  auto scope = tracer->WithActiveSpan(span);

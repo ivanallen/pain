@@ -1,17 +1,18 @@
 #include "manusya/manusya_service_impl.h"
+#include "base/brpc_text_map_carrier.h"
 #include "base/plog.h"
+#include "base/tracer.h"
 #include "butil/endpoint.h"
 #include <brpc/controller.h>
 
 namespace pain::manusya {
 
 void ManusyaServiceImpl::create_chunk(
-    google::protobuf::RpcController *cntl_base,
+    google::protobuf::RpcController *controller,
     const CreateChunkRequest *request, CreateChunkResponse *response,
     google::protobuf::Closure *done) {
+  DEFINE_SPAN(span, controller);
   brpc::ClosureGuard done_guard(done);
-
-  brpc::Controller *cntl = static_cast<brpc::Controller *>(cntl_base);
 
   PLOG_INFO(("desc", "Received request")                                      //
             ("log_id", cntl->log_id())                                        //
@@ -23,12 +24,11 @@ void ManusyaServiceImpl::create_chunk(
 }
 
 void ManusyaServiceImpl::append_chunk(
-    google::protobuf::RpcController *cntl_base,
+    google::protobuf::RpcController *controller,
     const AppendChunkRequest *request, AppendChunkResponse *response,
     google::protobuf::Closure *done) {
+  DEFINE_SPAN(span, controller);
   brpc::ClosureGuard done_guard(done);
-
-  brpc::Controller *cntl = static_cast<brpc::Controller *>(cntl_base);
 
   PLOG_INFO(("desc", "Received request")                                      //
             ("log_id", cntl->log_id())                                        //

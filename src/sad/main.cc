@@ -6,6 +6,7 @@
 
 #include "base/plog.h"
 #include "base/spdlog_sink.h"
+#include "base/tracer.h"
 #include "spdlog/common.h"
 #include <argparse/argparse.hpp>
 #include <fmt/format.h>
@@ -30,13 +31,16 @@ int main(int argc, char *argv[]) {
   static pain::base::SpdlogSink spdlog_sink;
   logging::SetLogSink(&spdlog_sink);
   PLOG_WARN(("desc", "sad start"));
+  pain::base::init_tracer("sad");
 
   auto status = pain::sad::execute(pain::sad::program);
   if (!status.ok()) {
     PLOG_ERROR(("desc", "sad exit")("status", status.error_str()));
     fmt::print(stderr, R"({{"status":{},"message":"{}"}}{})",
                status.error_code(), status.error_str(), "\n");
+    pain::base::cleanup_tracer();
     return EXIT_FAILURE;
   }
+  pain::base::cleanup_tracer();
   return 0;
 }

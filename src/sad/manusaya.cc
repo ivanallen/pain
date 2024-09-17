@@ -1,3 +1,4 @@
+#include "base/tracer.h"
 #include "sad/common.h"
 #include "sad/macro.h"
 #include <argparse/argparse.hpp>
@@ -41,6 +42,7 @@ void add(const std::string &name,
 }
 
 Status execute(argparse::ArgumentParser &parser) {
+  SPAN(span);
   for (const auto &[name, func] : subcommands) {
     if (parser.is_subcommand_used(name)) {
       return func(parser.at<argparse::ArgumentParser>(name));
@@ -52,6 +54,7 @@ Status execute(argparse::ArgumentParser &parser) {
 
 RUN(MANUSYA_ARGS(create_chunk).add_description("create chunk"));
 COMMAND(create_chunk) {
+  SPAN(span);
   auto host = args.get<std::string>("--host");
   brpc::Channel channel;
   brpc::ChannelOptions options;
@@ -63,6 +66,7 @@ COMMAND(create_chunk) {
   pain::manusya::CreateChunkRequest request;
   pain::manusya::CreateChunkResponse response;
   pain::manusya::ManusyaService_Stub stub(&channel);
+  base::inject_tracer(&cntl);
   stub.create_chunk(&cntl, &request, &response, nullptr);
   if (cntl.Failed()) {
     return Status(cntl.ErrorCode(), cntl.ErrorText());
@@ -78,6 +82,7 @@ RUN(MANUSYA_ARGS(append_chunk)
         .required()
         .help("chunk uuid, such as 123e4567-e89b-12d3-a456-426655440000"));
 COMMAND(append_chunk) {
+  SPAN(span);
   auto chunk_id = args.get<std::string>("--chunk-id");
   auto host = args.get<std::string>("--host");
 
@@ -91,6 +96,7 @@ COMMAND(append_chunk) {
   pain::manusya::AppendChunkRequest request;
   pain::manusya::AppendChunkResponse response;
   pain::manusya::ManusyaService_Stub stub(&channel);
+  base::inject_tracer(&cntl);
 
   request.mutable_uuid()->set_low(100);
   request.mutable_uuid()->set_high(200);

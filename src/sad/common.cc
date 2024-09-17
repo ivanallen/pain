@@ -1,4 +1,5 @@
 #include "sad/common.h"
+#include "base/tracer.h"
 #include <fmt/format.h>
 #include <nlohmann/json.hpp>
 
@@ -27,7 +28,7 @@ void print(const brpc::Controller &cntl,
   out["header"] = {
       {"status", status ? *status : "0"},
       {"message", error_message ? *error_message : "ok"},
-      {"trace_id", cntl.log_id()},
+      {"trace_id", base::get_current_trace_id()},
       {"remote_side", butil::endpoint2str(cntl.remote_side()).c_str()},
   };
   auto j = pb_to_json(message);

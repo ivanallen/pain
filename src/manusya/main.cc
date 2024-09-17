@@ -1,3 +1,5 @@
+#include "base/scope_exit.h"
+#include "base/tracer.h"
 #include "manusya/manusya_service_impl.h"
 #include <brpc/server.h>
 
@@ -12,6 +14,9 @@ int main(int argc, char *argv[]) {
   brpc::Server server;
 
   pain::manusya::ManusyaServiceImpl manusya_service_impl;
+  pain::base::init_tracer("manusya");
+  auto stop_tracer =
+      pain::base::make_scope_exit([]() { pain::base::cleanup_tracer(); });
 
   if (server.AddService(&manusya_service_impl,
                         brpc::SERVER_DOESNT_OWN_SERVICE) != 0) {
