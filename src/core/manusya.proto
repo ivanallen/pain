@@ -10,6 +10,9 @@ message CreateChunkResponse { UUID uuid = 1; };
 
 message AppendChunkRequest {
   UUID uuid = 1;
+  uint64 offset = 2;
+  uint32 length = 3;
+  uint32 digest = 4;
 };
 
 message AppendChunkResponse {};

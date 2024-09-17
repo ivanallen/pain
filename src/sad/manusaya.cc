@@ -72,7 +72,7 @@ COMMAND(create_chunk) {
     return Status(cntl.ErrorCode(), cntl.ErrorText());
   }
 
-  print(cntl, response);
+  print(cntl, &response);
   return Status::OK();
 }
 
@@ -106,8 +106,7 @@ COMMAND(append_chunk) {
     return Status(cntl.ErrorCode(), cntl.ErrorText());
   }
 
-  print(cntl, response);
-
+  print(cntl, &response);
   return Status::OK();
 }
 

@@ -4,13 +4,13 @@
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-DEFINE_string(tracer_otlp_http_exporter_url, "http://localhost:4318/v1/traces",
-              "OTLP exporter URL");
-DEFINE_bool(tracer_otlp_http_exporter_enable, true,
+DEFINE_string(base_tracer_otlp_http_exporter_url,
+              "http://localhost:4318/v1/traces", "OTLP exporter URL");
+DEFINE_bool(base_tracer_otlp_http_exporter_enable, true,
             "Enable OTLP HTTP exporter");
-DEFINE_bool(tracer_otlp_file_exporter_enable, false,
+DEFINE_bool(base_tracer_otlp_file_exporter_enable, false,
             "Enable OTLP file exporter");
-DEFINE_string(tracer_otlp_file_exporter_path, "trace_exporter",
+DEFINE_string(base_tracer_otlp_file_exporter_path, "trace_exporter",
               "OTLP file exporter path");
 namespace otlp = opentelemetry::exporter::otlp;
 
@@ -42,9 +42,9 @@ void init_tracer(const std::string &service_name) {
 
   std::vector<std::unique_ptr<opentelemetry::sdk::trace::SpanProcessor>>
       processors;
-  if (FLAGS_tracer_otlp_http_exporter_enable) {
+  if (FLAGS_base_tracer_otlp_http_exporter_enable) {
     otlp::OtlpHttpExporterOptions opts;
-    opts.url = FLAGS_tracer_otlp_http_exporter_url;
+    opts.url = FLAGS_base_tracer_otlp_http_exporter_url;
     auto exporter = otlp::OtlpHttpExporterFactory::Create(opts);
 
     auto processor =
@@ -53,9 +53,9 @@ void init_tracer(const std::string &service_name) {
     processors.push_back(std::move(processor));
   }
 
-  if (FLAGS_tracer_otlp_file_exporter_enable) {
-    std::string filename =
-        FLAGS_tracer_otlp_file_exporter_path + "." + service_name + ".otlp";
+  if (FLAGS_base_tracer_otlp_file_exporter_enable) {
+    std::string filename = FLAGS_base_tracer_otlp_file_exporter_path + "." +
+                           service_name + ".otlp";
     static std::ofstream out(filename, std::ios::binary | std::ios::app);
     auto exporter =
         opentelemetry::exporter::trace::OStreamSpanExporterFactory::Create(out);

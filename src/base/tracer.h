@@ -22,10 +22,10 @@
 #include <brpc/controller.h>
 #include <string>
 
-DECLARE_string(tracer_otlp_http_exporter_url);
-DECLARE_bool(tracer_otlp_http_exporter_enable);
-DECLARE_bool(tracer_otlp_file_exporter_enable);
-DECLARE_string(tracer_otlp_file_exporter_path);
+DECLARE_string(base_tracer_otlp_http_exporter_url);
+DECLARE_bool(base_tracer_otlp_http_exporter_enable);
+DECLARE_bool(base_tracer_otlp_file_exporter_enable);
+DECLARE_string(base_tracer_otlp_file_exporter_path);
 
 namespace pain::base {
 class TraceLogHandle

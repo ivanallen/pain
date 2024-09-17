@@ -5,6 +5,9 @@
 #include "butil/endpoint.h"
 #include <brpc/controller.h>
 
+DEFINE_string(manusya_data_path, "./data",
+              "The path to store the data of manusya");
+
 namespace pain::manusya {
 
 void ManusyaServiceImpl::create_chunk(
@@ -19,6 +22,10 @@ void ManusyaServiceImpl::create_chunk(
             ("remote_side", butil::endpoint2str(cntl->remote_side()).c_str()) //
             ("attached", cntl->request_attachment().size()));
 
+  if (rand() % 2) {
+    cntl->SetFailed(EINVAL, "Random error");
+    return;
+  }
   response->mutable_uuid()->set_low(100);
   response->mutable_uuid()->set_high(200);
 }

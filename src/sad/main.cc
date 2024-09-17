@@ -7,6 +7,7 @@
 #include "base/plog.h"
 #include "base/spdlog_sink.h"
 #include "base/tracer.h"
+#include "sad/common.h"
 #include "spdlog/common.h"
 #include <argparse/argparse.hpp>
 #include <fmt/format.h>
@@ -36,8 +37,7 @@ int main(int argc, char *argv[]) {
   auto status = pain::sad::execute(pain::sad::program);
   if (!status.ok()) {
     PLOG_ERROR(("desc", "sad exit")("status", status.error_str()));
-    fmt::print(stderr, R"({{"status":{},"message":"{}"}}{})",
-               status.error_code(), status.error_str(), "\n");
+    pain::sad::print(status);
     pain::base::cleanup_tracer();
     return EXIT_FAILURE;
   }
