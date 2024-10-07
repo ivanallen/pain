@@ -30,9 +30,10 @@ Status RocksdbStore::open(const char* data_path, RocksdbStorePtr* store) {
         if (!fs->create_directory(data_path, &error, true)) {
             if (error != butil::File::FILE_OK) {
                 PLOG_ERROR(("desc", "create dir failed") //
-                           ("path", data_path)("error", static_cast<int>(error)));
-                return Status(EIO, "create dir %s failed", data_path);
+                           ("path", data_path)           //
+                           ("error", static_cast<int>(error)));
             }
+            return Status(EIO, "create dir %s failed", data_path);
         }
     }
     rocksdb::Options options;

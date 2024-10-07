@@ -91,4 +91,145 @@ COMMAND(register_deva) {
     return Status::OK();
 }
 
+ASURA_CMD(list_deva)
+RUN(ARGS(list_deva).add_description("list deva"))
+COMMAND(list_deva) {
+    SPAN(span);
+    auto host = args.get<std::string>("--host");
+
+    brpc::Channel channel;
+    brpc::ChannelOptions options;
+    options.connect_timeout_ms = 2000;
+    options.timeout_ms = 10000;
+    options.max_retry = 0;
+    if (channel.Init(host.c_str(), &options) != 0) {
+        return Status(EAGAIN, "Fail to initialize channel");
+    }
+
+    brpc::Controller cntl;
+    pain::core::asura::ListDevaRequest request;
+    pain::core::asura::ListDevaResponse response;
+    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::inject_tracer(&cntl);
+
+    stub.ListDeva(&cntl, &request, &response, nullptr);
+    if (cntl.Failed()) {
+        return Status(cntl.ErrorCode(), cntl.ErrorText());
+    }
+
+    print(cntl, &response);
+    return Status::OK();
+}
+
+ASURA_CMD(register_manusya)
+RUN(ARGS(register_manusya).add_description("add manusya"))
+RUN(ARGS(register_manusya).add_argument("--ip").required())
+RUN(ARGS(register_manusya).add_argument("--port").default_value(0u).scan<'i', uint32_t>().required())
+RUN(ARGS(register_manusya).add_argument("--pool").required())
+COMMAND(register_manusya) {
+    SPAN(span);
+    auto host = args.get<std::string>("--host");
+    auto ip = args.get<std::string>("--ip");
+    auto port = args.get<uint32_t>("--port");
+    auto pool = args.get<std::string>("--pool");
+    if (!UUID::valid(pool)) {
+        return Status(EINVAL, "Invalid pool id");
+    }
+    auto pool_id = UUID::from_str_or_die(pool);
+
+    brpc::Channel channel;
+    brpc::ChannelOptions options;
+    options.connect_timeout_ms = 2000;
+    options.timeout_ms = 10000;
+    options.max_retry = 0;
+    if (channel.Init(host.c_str(), &options) != 0) {
+        return Status(EAGAIN, "Fail to initialize channel");
+    }
+
+    brpc::Controller cntl;
+    pain::core::asura::RegisterManusyaRequest request;
+    pain::core::asura::RegisterManusyaResponse response;
+    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::inject_tracer(&cntl);
+
+    auto id = pain::UUID::generate();
+    auto manusya_server = request.add_manusya_servers();
+    manusya_server->mutable_id()->set_low(id.low());
+    manusya_server->mutable_id()->set_high(id.high());
+    manusya_server->set_ip(ip);
+    manusya_server->set_port(port);
+    manusya_server->mutable_pool_id()->set_low(pool_id.low());
+    manusya_server->mutable_pool_id()->set_high(pool_id.high());
+    stub.RegisterManusya(&cntl, &request, &response, nullptr);
+    if (cntl.Failed()) {
+        return Status(cntl.ErrorCode(), cntl.ErrorText());
+    }
+
+    print(cntl, &response);
+    return Status::OK();
+}
+
+ASURA_CMD(list_manusya)
+RUN(ARGS(list_manusya).add_description("list manusya"))
+COMMAND(list_manusya) {
+    SPAN(span);
+    auto host = args.get<std::string>("--host");
+
+    brpc::Channel channel;
+    brpc::ChannelOptions options;
+    options.connect_timeout_ms = 2000;
+    options.timeout_ms = 10000;
+    options.max_retry = 0;
+    if (channel.Init(host.c_str(), &options) != 0) {
+        return Status(EAGAIN, "Fail to initialize channel");
+    }
+
+    brpc::Controller cntl;
+    pain::core::asura::ListManusyaRequest request;
+    pain::core::asura::ListManusyaResponse response;
+    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::inject_tracer(&cntl);
+
+    stub.ListManusya(&cntl, &request, &response, nullptr);
+    if (cntl.Failed()) {
+        return Status(cntl.ErrorCode(), cntl.ErrorText());
+    }
+
+    print(cntl, &response);
+    return Status::OK();
+}
+
+ASURA_CMD(create_pool)
+RUN(ARGS(create_pool).add_description("create pool"))
+RUN(ARGS(create_pool).add_argument("--name").required())
+COMMAND(create_pool) {
+    SPAN(span);
+    auto host = args.get<std::string>("--host");
+    auto name = args.get<std::string>("--name");
+
+    brpc::Channel channel;
+    brpc::ChannelOptions options;
+    options.connect_timeout_ms = 2000;
+    options.timeout_ms = 10000;
+    options.max_retry = 0;
+    if (channel.Init(host.c_str(), &options) != 0) {
+        return Status(EAGAIN, "Fail to initialize channel");
+    }
+
+    brpc::Controller cntl;
+    pain::core::asura::CreatePoolRequest request;
+    pain::core::asura::CreatePoolResponse response;
+    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::inject_tracer(&cntl);
+
+    request.set_pool_name(name);
+    stub.CreatePool(&cntl, &request, &response, nullptr);
+    if (cntl.Failed()) {
+        return Status(cntl.ErrorCode(), cntl.ErrorText());
+    }
+
+    print(cntl, &response);
+    return Status::OK();
+}
+
 } // namespace pain::sad::asura
