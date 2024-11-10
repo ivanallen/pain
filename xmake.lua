@@ -30,11 +30,14 @@ add_requires("protobuf-cpp 3.19.4", {configs = {zlib = true}})
 add_requires("rocksdb v9.0.0")
 add_requires("spdlog v1.14.1", {configs = {fmt_external = true, header_only = true}})
 add_requires("uuid_v4 1.0.0")
+add_requires("dpdk 24.03")
+add_requires("spdk 24.09", {debug = is_mode("debug")})
 
 add_requireconfs("**.boost", {override=true, version="1.81.0"})
 add_requireconfs("**.fmt", {override=true, version="10.1.1", configs = {header_only = true}})
 add_requireconfs("**.protobuf-cpp", {version = "3.19.4", override=true, configs = {zlib = true}})
 add_requireconfs("**.spdlog", {override=true, version="v1.14.1"})
+add_requireconfs("**.dpdk", {override=true, version="24.03"})
 
 
 add_includedirs("include")

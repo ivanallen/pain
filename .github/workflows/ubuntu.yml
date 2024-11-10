@@ -31,6 +31,15 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev p7zip clang-format-16
+          sudo apt install -y  libaio-dev
+          sudo apt install -y uuid-dev
+          sudo apt install -y libibverbs-dev
+          sudo apt install -y librdmacm-dev
+          sudo apt install -y libelf-dev
+          sudo apt install -y patchelf
+          sudo apt install -y python3-pyelftools
+          sudo apt install -y nasm
+          sudo apt install -y autoconf automake libtool
           sudo ln -sf /usr/bin/clang-format-16 /usr/bin/clang-format
       
       - name: Format

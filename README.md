@@ -19,6 +19,17 @@ sudo apt install ansible
 
 # install prometheus roles
 ansible-galaxy collection install prometheus.prometheus
+
+# install tools and package
+sudo apt install -y  libaio-dev
+sudo apt install -y uuid-dev
+sudo apt install -y libibverbs-dev
+sudo apt install -y librdmacm-dev
+sudo apt install -y libelf-dev
+sudo apt install -y patchelf
+sudo apt install -y python3-pyelftools
+sudo apt install -y nasm
+sudo apt install -y autoconf automake libtool
 ```
 
 ## Build
