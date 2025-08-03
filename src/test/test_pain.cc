@@ -5,10 +5,10 @@ int main() {
     spdlog::set_level(spdlog::level::debug);
     auto fs = pain::FileSystem::create("list://192.168.10.1:8001,192.168.10.2:8001,192.168.10.3:8001");
     auto file = fs->open("/tmp/hello.txt", O_CREAT | O_WRONLY);
-    pain::core::FileService::Stub stub(file.get());
+    pain::proto::FileService::Stub stub(file.get());
     pain::Controller cntl;
-    pain::core::AppendRequest request;
-    pain::core::AppendResponse response;
+    pain::proto::AppendRequest request;
+    pain::proto::AppendResponse response;
     cntl.request_attachment().append("hello world");
     stub.append(&cntl, &request, &response, nullptr);
     if (cntl.Failed()) {

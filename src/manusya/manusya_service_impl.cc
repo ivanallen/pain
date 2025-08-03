@@ -14,8 +14,8 @@ namespace pain::manusya {
 ManusyaServiceImpl::ManusyaServiceImpl() {}
 
 void ManusyaServiceImpl::create_chunk(google::protobuf::RpcController* controller,
-                                      const pain::core::manusya::CreateChunkRequest* request,
-                                      pain::core::manusya::CreateChunkResponse* response,
+                                      const pain::proto::manusya::CreateChunkRequest* request,
+                                      pain::proto::manusya::CreateChunkResponse* response,
                                       google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -41,8 +41,8 @@ void ManusyaServiceImpl::create_chunk(google::protobuf::RpcController* controlle
 }
 
 void ManusyaServiceImpl::append_chunk(google::protobuf::RpcController* controller,
-                                      const pain::core::manusya::AppendChunkRequest* request,
-                                      pain::core::manusya::AppendChunkResponse* response,
+                                      const pain::proto::manusya::AppendChunkRequest* request,
+                                      pain::proto::manusya::AppendChunkResponse* response,
                                       google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -79,8 +79,8 @@ void ManusyaServiceImpl::append_chunk(google::protobuf::RpcController* controlle
 }
 
 void ManusyaServiceImpl::list_chunk(google::protobuf::RpcController* controller,
-                                    const pain::core::manusya::ListChunkRequest* request,
-                                    pain::core::manusya::ListChunkResponse* response,
+                                    const pain::proto::manusya::ListChunkRequest* request,
+                                    pain::proto::manusya::ListChunkResponse* response,
                                     google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -100,8 +100,8 @@ void ManusyaServiceImpl::list_chunk(google::protobuf::RpcController* controller,
 }
 
 void ManusyaServiceImpl::read_chunk(google::protobuf::RpcController* controller,
-                                    const pain::core::manusya::ReadChunkRequest* request,
-                                    pain::core::manusya::ReadChunkResponse* response,
+                                    const pain::proto::manusya::ReadChunkRequest* request,
+                                    pain::proto::manusya::ReadChunkResponse* response,
                                     google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -131,8 +131,8 @@ void ManusyaServiceImpl::read_chunk(google::protobuf::RpcController* controller,
 }
 
 void ManusyaServiceImpl::seal_chunk(google::protobuf::RpcController* controller,
-                                    const pain::core::manusya::SealChunkRequest* request,
-                                    pain::core::manusya::SealChunkResponse* response,
+                                    const pain::proto::manusya::SealChunkRequest* request,
+                                    pain::proto::manusya::SealChunkResponse* response,
                                     google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -160,8 +160,8 @@ void ManusyaServiceImpl::seal_chunk(google::protobuf::RpcController* controller,
 }
 
 void ManusyaServiceImpl::remove_chunk(google::protobuf::RpcController* controller,
-                                      const pain::core::manusya::RemoveChunkRequest* request,
-                                      pain::core::manusya::RemoveChunkResponse* response,
+                                      const pain::proto::manusya::RemoveChunkRequest* request,
+                                      pain::proto::manusya::RemoveChunkResponse* response,
                                       google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -181,8 +181,8 @@ void ManusyaServiceImpl::remove_chunk(google::protobuf::RpcController* controlle
 }
 
 void ManusyaServiceImpl::query_chunk(google::protobuf::RpcController* controller,
-                                     const pain::core::manusya::QueryChunkRequest* request,
-                                     pain::core::manusya::QueryChunkResponse* response,
+                                     const pain::proto::manusya::QueryChunkRequest* request,
+                                     pain::proto::manusya::QueryChunkResponse* response,
                                      google::protobuf::Closure* done) {
     DEFINE_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -204,7 +204,7 @@ void ManusyaServiceImpl::query_chunk(google::protobuf::RpcController* controller
     response->set_size(chunk->size());
     response->mutable_chunk_options()->set_append_out_of_order(chunk->options().append_out_of_order);
     response->mutable_chunk_options()->set_digest(chunk->options().digest);
-    response->set_chunk_state(static_cast<pain::core::ChunkState>(chunk->state()));
+    response->set_chunk_state(static_cast<pain::proto::ChunkState>(chunk->state()));
 }
 
 } // namespace pain::manusya

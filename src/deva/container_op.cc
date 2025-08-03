@@ -1,6 +1,6 @@
 #include "deva/container_op.h"
 #include <boost/assert.hpp>
-#include "pain/core/deva_store.pb.h"
+#include "pain/proto/deva_store.pb.h"
 #include "base/types.h"
 #include "deva/deva.h"
 
@@ -19,7 +19,7 @@ OpPtr create(RsmPtr rsm) {
 
 #define BRANCH(name)                                                                                                   \
     case OpType::k##name:                                                                                              \
-        return create<OpType::k##name, core::deva::store::name##Request, core::deva::store::name##Response>(rsm);      \
+        return create<OpType::k##name, proto::deva::store::name##Request, proto::deva::store::name##Response>(rsm);    \
         break;
 
 OpPtr decode(OpType op_type, IOBuf* buf, RsmPtr rsm) {

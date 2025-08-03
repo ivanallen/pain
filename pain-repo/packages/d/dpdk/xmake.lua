@@ -8,7 +8,8 @@ package("dpdk")
 
     add_deps("meson", "ninja")
     add_deps("zlib")
-    add_deps("ibverbs", "crypto", "mana", "mlx4", "mlx5", "elf", {system = true})
+    add_deps("ibverbs", "crypto", "mana", "mlx4", "mlx5", "elf", "numa", {system = true})
+
     add_links("rte_node", "rte_graph", "rte_pipeline", "rte_table", "rte_pdump",
         "rte_port", "rte_fib", "rte_pdcp", "rte_ipsec", "rte_vhost", "rte_stack",
         "rte_security", "rte_sched", "rte_reorder", "rte_rib", "rte_mldev", "rte_regexdev",
@@ -30,7 +31,6 @@ package("dpdk")
 
     on_install(function (package)
         local configs = {}
-        table.insert(configs, "--default-library=static")
         table.insert(configs, "-Dmax_numa_nodes=1")
         import("package.tools.meson").install(package, configs)
         -- rm *.so

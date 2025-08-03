@@ -2,7 +2,7 @@
 #include <list>
 
 #include "pain/chunk.h"
-#include "pain/core/pain.pb.h"
+#include "pain/proto/pain.pb.h"
 #include "base/uuid.h"
 
 namespace pain {
@@ -12,23 +12,23 @@ class AppendRequest;
 class AppendResponse;
 class ReadRequest;
 class ReadResponse;
-class FileStreamImpl : public pain::core::FileService {
+class FileStreamImpl : public pain::proto::FileService {
 public:
     void append(::google::protobuf::RpcController* controller,
-                const ::pain::core::AppendRequest* request,
-                ::pain::core::AppendResponse* response,
+                const ::pain::proto::AppendRequest* request,
+                ::pain::proto::AppendResponse* response,
                 ::google::protobuf::Closure* done) override;
     void read(::google::protobuf::RpcController* controller,
-              const ::pain::core::ReadRequest* request,
-              ::pain::core::ReadResponse* response,
+              const ::pain::proto::ReadRequest* request,
+              ::pain::proto::ReadResponse* response,
               ::google::protobuf::Closure* done) override;
     void seal(::google::protobuf::RpcController* controller,
-              const ::pain::core::SealRequest* request,
-              ::pain::core::SealResponse* response,
+              const ::pain::proto::SealRequest* request,
+              ::pain::proto::SealResponse* response,
               ::google::protobuf::Closure* done) override;
     void close(::google::protobuf::RpcController* controller,
-               const ::pain::core::CloseRequest* request,
-               ::pain::core::CloseResponse* response,
+               const ::pain::proto::CloseRequest* request,
+               ::pain::proto::CloseResponse* response,
                ::google::protobuf::Closure* done) override;
 
 private:

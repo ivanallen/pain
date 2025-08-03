@@ -4,7 +4,8 @@ package("boost")
     set_description("Collection of portable C++ source libraries.")
     set_license("BSL-1.0")
 
-    add_urls("https://boostorg.jfrog.io/artifactory/main/release/$(version).tar.bz2", {version = function (version)
+    -- https://archives.boost.io/release/1.81.0/source/boost_1_81_0.tar.bz2
+    add_urls("https://archives.boost.io/release/$(version).tar.bz2", {version = function (version)
         return version .. "/source/boost_" .. (version:gsub("%.", "_"))
     end})
 

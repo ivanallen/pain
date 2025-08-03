@@ -5,8 +5,8 @@
 
 namespace pain::deva {
 
-Status Deva::Open(const pain::core::deva::store::OpenRequest* request,
-                  pain::core::deva::store::OpenResponse* response,
+Status Deva::Open(const pain::proto::deva::store::OpenRequest* request,
+                  pain::proto::deva::store::OpenResponse* response,
                   int64_t index) {
     SPAN(span);
     auto uuid = UUID(request->uuid().high(), request->uuid().low());
@@ -17,50 +17,50 @@ Status Deva::Open(const pain::core::deva::store::OpenRequest* request,
     return Status::OK();
 }
 
-Status Deva::Close(const pain::core::deva::store::CloseRequest* request,
-                   pain::core::deva::store::CloseResponse* response,
+Status Deva::Close(const pain::proto::deva::store::CloseRequest* request,
+                   pain::proto::deva::store::CloseResponse* response,
                    int64_t index) {
     PLOG_INFO(("desc", "close")("index", index));
     return Status::OK();
 }
 
-Status Deva::Remove(const pain::core::deva::store::RemoveRequest* request,
-                    pain::core::deva::store::RemoveResponse* response,
+Status Deva::Remove(const pain::proto::deva::store::RemoveRequest* request,
+                    pain::proto::deva::store::RemoveResponse* response,
                     int64_t index) {
     PLOG_INFO(("desc", "remove")("index", index));
     return Status::OK();
 }
 
-Status Deva::Seal(const pain::core::deva::store::SealRequest* request,
-                  pain::core::deva::store::SealResponse* response,
+Status Deva::Seal(const pain::proto::deva::store::SealRequest* request,
+                  pain::proto::deva::store::SealResponse* response,
                   int64_t index) {
     PLOG_INFO(("desc", "seal")("index", index));
     return Status::OK();
 }
 
-Status Deva::CreateChunk(const pain::core::deva::store::CreateChunkRequest* request,
-                         pain::core::deva::store::CreateChunkResponse* response,
+Status Deva::CreateChunk(const pain::proto::deva::store::CreateChunkRequest* request,
+                         pain::proto::deva::store::CreateChunkResponse* response,
                          int64_t index) {
     PLOG_INFO(("desc", "create_chunk")("index", index));
     return Status::OK();
 }
 
-Status Deva::RemoveChunk(const pain::core::deva::store::RemoveChunkRequest* request,
-                         pain::core::deva::store::RemoveChunkResponse* response,
+Status Deva::RemoveChunk(const pain::proto::deva::store::RemoveChunkRequest* request,
+                         pain::proto::deva::store::RemoveChunkResponse* response,
                          int64_t index) {
     PLOG_INFO(("desc", "remove_chunk")("index", index));
     return Status::OK();
 }
 
-Status Deva::SealChunk(const pain::core::deva::store::SealChunkRequest* request,
-                       pain::core::deva::store::SealChunkResponse* response,
+Status Deva::SealChunk(const pain::proto::deva::store::SealChunkRequest* request,
+                       pain::proto::deva::store::SealChunkResponse* response,
                        int64_t index) {
     PLOG_INFO(("desc", "seal_chunk")("index", index));
     return Status::OK();
 }
 
-Status Deva::SealAndNewChunk(const pain::core::deva::store::SealAndNewChunkRequest* request,
-                             pain::core::deva::store::SealAndNewChunkResponse* response,
+Status Deva::SealAndNewChunk(const pain::proto::deva::store::SealAndNewChunkRequest* request,
+                             pain::proto::deva::store::SealAndNewChunkResponse* response,
                              int64_t index) {
     PLOG_INFO(("desc", "seal_and_new_chunk")("index", index));
     return Status::OK();

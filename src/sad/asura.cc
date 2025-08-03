@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 
-#include "pain/core/asura.pb.h"
+#include "pain/proto/asura.pb.h"
 #include "base/tracer.h"
 #include "base/types.h"
 #include "base/uuid.h"
@@ -71,9 +71,9 @@ COMMAND(register_deva) {
     }
 
     brpc::Controller cntl;
-    pain::core::asura::RegisterDevaRequest request;
-    pain::core::asura::RegisterDevaResponse response;
-    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::proto::asura::RegisterDevaRequest request;
+    pain::proto::asura::RegisterDevaResponse response;
+    pain::proto::asura::TopologyService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     auto id = pain::UUID::generate();
@@ -107,9 +107,9 @@ COMMAND(list_deva) {
     }
 
     brpc::Controller cntl;
-    pain::core::asura::ListDevaRequest request;
-    pain::core::asura::ListDevaResponse response;
-    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::proto::asura::ListDevaRequest request;
+    pain::proto::asura::ListDevaResponse response;
+    pain::proto::asura::TopologyService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     stub.ListDeva(&cntl, &request, &response, nullptr);
@@ -147,9 +147,9 @@ COMMAND(register_manusya) {
     }
 
     brpc::Controller cntl;
-    pain::core::asura::RegisterManusyaRequest request;
-    pain::core::asura::RegisterManusyaResponse response;
-    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::proto::asura::RegisterManusyaRequest request;
+    pain::proto::asura::RegisterManusyaResponse response;
+    pain::proto::asura::TopologyService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     auto id = pain::UUID::generate();
@@ -185,9 +185,9 @@ COMMAND(list_manusya) {
     }
 
     brpc::Controller cntl;
-    pain::core::asura::ListManusyaRequest request;
-    pain::core::asura::ListManusyaResponse response;
-    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::proto::asura::ListManusyaRequest request;
+    pain::proto::asura::ListManusyaResponse response;
+    pain::proto::asura::TopologyService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     stub.ListManusya(&cntl, &request, &response, nullptr);
@@ -217,9 +217,9 @@ COMMAND(create_pool) {
     }
 
     brpc::Controller cntl;
-    pain::core::asura::CreatePoolRequest request;
-    pain::core::asura::CreatePoolResponse response;
-    pain::core::asura::TopologyService::Stub stub(&channel);
+    pain::proto::asura::CreatePoolRequest request;
+    pain::proto::asura::CreatePoolResponse response;
+    pain::proto::asura::TopologyService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     request.set_pool_name(name);

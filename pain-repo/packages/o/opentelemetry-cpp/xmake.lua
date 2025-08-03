@@ -3,7 +3,7 @@ package("opentelemetry-cpp")
     set_homepage("https://opentelemetry.io/")
     set_description("opentelemetry cpp library")
 
-    add_urls("https://github.com/open-telemetry/opentelemetry-cpp.git")
+    add_urls("https://github.com/open-telemetry/opentelemetry-cpp.git", {submodules = false})
     add_versions("1.16.1", "baecbb95bd63df53e0af16e87bc683967962c5f8")
 
 

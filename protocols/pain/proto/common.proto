@@ -1,5 +1,5 @@
 syntax = "proto3";
-package pain.core;
+package pain.proto;
 
 message UUID {
   uint64 low = 1;
@@ -16,9 +16,10 @@ message Location {
 }
 
 enum ChunkState {
-  CHUNK_STATE_INIT = 0;
-  CHUNK_STATE_OPEN = 1;
-  CHUNK_STATE_SEALED = 2;
+  CHUNK_STATE_NONE = 0;
+  CHUNK_STATE_INIT = 1;
+  CHUNK_STATE_CHECKIN = 2;
+  CHUNK_STATE_SEALED = 3;
 };
 
 message SubChunk {

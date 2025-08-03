@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 
-#include "pain/core/deva.pb.h"
+#include "pain/proto/deva.pb.h"
 #include "base/tracer.h"
 #include "base/types.h"
 #include "base/uuid.h"
@@ -72,9 +72,9 @@ COMMAND(open) {
     }
 
     brpc::Controller cntl;
-    pain::core::deva::OpenRequest request;
-    pain::core::deva::OpenResponse response;
-    pain::core::deva::DevaService::Stub stub(&channel);
+    pain::proto::deva::OpenRequest request;
+    pain::proto::deva::OpenResponse response;
+    pain::proto::deva::DevaService::Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     auto id = pain::UUID::from_str_or_die(uuid);

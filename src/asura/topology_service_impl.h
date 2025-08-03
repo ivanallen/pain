@@ -1,12 +1,12 @@
 #pragma once
 
-#include "pain/core/asura.pb.h"
+#include "pain/proto/asura.pb.h"
 #include "asura/macro.h"
 #include "common/store.h"
 
 namespace pain::asura {
 
-class TopologyServiceImpl : public pain::core::asura::TopologyService {
+class TopologyServiceImpl : public pain::proto::asura::TopologyService {
 public:
     TopologyServiceImpl(common::StorePtr store) : _store(store) {}
     ASURA_RPC_ENTRY(CreatePool);

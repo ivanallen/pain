@@ -1,16 +1,16 @@
 #pragma once
 
 #include <boost/intrusive_ptr.hpp>
-#include "pain/core/deva_store.pb.h"
+#include "pain/proto/deva_store.pb.h"
 #include "base/types.h"
 #include "deva/container.h"
 
 #define DEVA_ENTRY(name)                                                                                               \
-    Status name(const pain::core::deva::store::name##Request* request,                                                 \
-                pain::core::deva::store::name##Response* response,                                                     \
+    Status name(const pain::proto::deva::store::name##Request* request,                                                 \
+                pain::proto::deva::store::name##Response* response,                                                     \
                 int64_t index);                                                                                        \
-    Status process(const pain::core::deva::store::name##Request* request,                                              \
-                   pain::core::deva::store::name##Response* response,                                                  \
+    Status process(const pain::proto::deva::store::name##Request* request,                                              \
+                   pain::proto::deva::store::name##Response* response,                                                  \
                    int64_t index) {                                                                                    \
         return name(request, response, index);                                                                         \
     }

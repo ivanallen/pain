@@ -26,6 +26,7 @@ sudo apt install -y uuid-dev
 sudo apt install -y libibverbs-dev
 sudo apt install -y librdmacm-dev
 sudo apt install -y libelf-dev
+sudo apt install -y libssl-dev
 sudo apt install -y patchelf
 sudo apt install -y python3-pyelftools
 sudo apt install -y nasm
@@ -99,10 +100,10 @@ docker run --rm \
 int main() {
     auto fs = pain::FileSystem::create("list://192.168.10.1:8001,192.168.10.2:8001,192.168.10.3:8001");
     auto file = fs->open("/tmp/hello.txt", O_CREAT | O_WRONLY);
-    pain::core::FileService::Stub stub(file.get());
+    pain::proto::FileService::Stub stub(file.get());
     pain::Controller cntl;
-    pain::core::AppendRequest request;
-    pain::core::AppendResponse response;
+    pain::proto::AppendRequest request;
+    pain::proto::AppendResponse response;
     
     request.set_direct_io(true);
     cntl.request_attachment().append("hello world");

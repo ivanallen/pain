@@ -1,11 +1,13 @@
 package("uuid_v4")
     set_kind("library", {headeronly = true})
-    set_homepage("https://github.com/crashoz/uuid_v4.git")
+    set_homepage("https://github.com/crashoz/uuid_v4.git", {submodules = false})
     set_description("A single header argument parser for C++17")
     set_license("MIT")
 
     add_urls("https://github.com/crashoz/uuid_v4.git")
     add_versions("1.0.0", "bae4100d7a4b08fc48faecbc49f0fd135f6f2a24")
+
+    add_deps("cmake")
 
     on_load(function (package)
         package:add("cxxflags", "-march=native")

@@ -1,7 +1,7 @@
 syntax = "proto3";
-package pain.core.deva.store;
+package pain.proto.deva.store;
 
-import "pain/core/common.proto";
+import "pain/proto/common.proto";
 
 message OpenRequest {
   UUID pool = 1;

@@ -12,12 +12,12 @@ static const std::string_view kAsuraDeva = "asura_deva";
 static const std::string_view kAsuraManusya = "asura_manusya";
 
 void TopologyServiceImpl::CreatePool(::google::protobuf::RpcController* controller,
-                                     const pain::core::asura::CreatePoolRequest* request,
-                                     pain::core::asura::CreatePoolResponse* response,
+                                     const pain::proto::asura::CreatePoolRequest* request,
+                                     pain::proto::asura::CreatePoolResponse* response,
                                      ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
-    pain::core::asura::Pool pool;
+    pain::proto::asura::Pool pool;
     if (_store->hexists(kAsuraPool, request->pool_name())) {
         cntl->SetFailed(EEXIST, "pool %s already exists", request->pool_name().c_str());
         return;
@@ -33,8 +33,8 @@ void TopologyServiceImpl::CreatePool(::google::protobuf::RpcController* controll
 }
 
 void TopologyServiceImpl::ListPool(::google::protobuf::RpcController* controller,
-                                   const pain::core::asura::ListPoolRequest* request,
-                                   pain::core::asura::ListPoolResponse* response,
+                                   const pain::proto::asura::ListPoolRequest* request,
+                                   pain::proto::asura::ListPoolResponse* response,
                                    ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -48,8 +48,8 @@ void TopologyServiceImpl::ListPool(::google::protobuf::RpcController* controller
 }
 
 void TopologyServiceImpl::RegisterDeva(::google::protobuf::RpcController* controller,
-                                       const pain::core::asura::RegisterDevaRequest* request,
-                                       pain::core::asura::RegisterDevaResponse* response,
+                                       const pain::proto::asura::RegisterDevaRequest* request,
+                                       pain::proto::asura::RegisterDevaResponse* response,
                                        ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -77,8 +77,8 @@ void TopologyServiceImpl::RegisterDeva(::google::protobuf::RpcController* contro
 }
 
 void TopologyServiceImpl::RegisterManusya(::google::protobuf::RpcController* controller,
-                                          const pain::core::asura::RegisterManusyaRequest* request,
-                                          pain::core::asura::RegisterManusyaResponse* response,
+                                          const pain::proto::asura::RegisterManusyaRequest* request,
+                                          pain::proto::asura::RegisterManusyaResponse* response,
                                           ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -105,8 +105,8 @@ void TopologyServiceImpl::RegisterManusya(::google::protobuf::RpcController* con
 }
 
 void TopologyServiceImpl::ListDeva(::google::protobuf::RpcController* controller,
-                                   const pain::core::asura::ListDevaRequest* request,
-                                   pain::core::asura::ListDevaResponse* response,
+                                   const pain::proto::asura::ListDevaRequest* request,
+                                   pain::proto::asura::ListDevaResponse* response,
                                    ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);
@@ -120,8 +120,8 @@ void TopologyServiceImpl::ListDeva(::google::protobuf::RpcController* controller
 }
 
 void TopologyServiceImpl::ListManusya(::google::protobuf::RpcController* controller,
-                                      const pain::core::asura::ListManusyaRequest* request,
-                                      pain::core::asura::ListManusyaResponse* response,
+                                      const pain::proto::asura::ListManusyaRequest* request,
+                                      pain::proto::asura::ListManusyaResponse* response,
                                       ::google::protobuf::Closure* done) {
     ASURA_SPAN(span, controller);
     brpc::ClosureGuard done_guard(done);

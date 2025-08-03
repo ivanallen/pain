@@ -38,12 +38,13 @@ add_requireconfs("**.fmt", {override=true, version="10.1.1", configs = {header_o
 add_requireconfs("**.protobuf-cpp", {version = "3.19.4", override=true, configs = {zlib = true}})
 add_requireconfs("**.spdlog", {override=true, version="v1.14.1"})
 add_requireconfs("**.dpdk", {override=true, version="24.03"})
+add_requireconfs("**.nlohmann_json", {override=true, version="v3.11.3", debug = is_mode("debug") or is_mode("coverage")})
 
 
 add_includedirs("include")
 add_includedirs("src")
 
 includes("src")
-includes("protocols/pain/core")
+includes("protocols/pain/proto")
 
 add_headerfiles("include/(pain/*.h)")

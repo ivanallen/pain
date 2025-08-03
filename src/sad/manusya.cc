@@ -7,7 +7,7 @@
 #include <fmt/format.h>
 #include <argparse/argparse.hpp>
 
-#include "pain/core/manusya.pb.h"
+#include "pain/proto/manusya.pb.h"
 #include "base/tracer.h"
 #include "base/types.h"
 #include "base/uuid.h"
@@ -73,9 +73,9 @@ COMMAND(create_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::CreateChunkRequest request;
-    pain::core::manusya::CreateChunkResponse response;
-    pain::core::manusya::ManusyaService_Stub stub(&channel);
+    pain::proto::manusya::CreateChunkRequest request;
+    pain::proto::manusya::CreateChunkResponse response;
+    pain::proto::manusya::ManusyaService_Stub stub(&channel);
     pain::inject_tracer(&cntl);
 
     request.mutable_chunk_options()->set_append_out_of_order(append_out_of_order);
@@ -127,9 +127,9 @@ COMMAND(append_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::AppendChunkRequest request;
-    pain::core::manusya::AppendChunkResponse response;
-    pain::core::manusya::ManusyaService_Stub stub(&channel);
+    pain::proto::manusya::AppendChunkRequest request;
+    pain::proto::manusya::AppendChunkResponse response;
+    pain::proto::manusya::ManusyaService_Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(chunk_id);
@@ -170,9 +170,9 @@ COMMAND(list_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::ListChunkRequest request;
-    pain::core::manusya::ListChunkResponse response;
-    pain::core::manusya::ManusyaService::Stub stub(&channel);
+    pain::proto::manusya::ListChunkRequest request;
+    pain::proto::manusya::ListChunkResponse response;
+    pain::proto::manusya::ManusyaService::Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(start);
@@ -232,9 +232,9 @@ COMMAND(read_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::ReadChunkRequest request;
-    pain::core::manusya::ReadChunkResponse response;
-    pain::core::manusya::ManusyaService::Stub stub(&channel);
+    pain::proto::manusya::ReadChunkRequest request;
+    pain::proto::manusya::ReadChunkResponse response;
+    pain::proto::manusya::ManusyaService::Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(chunk_id);
@@ -284,9 +284,9 @@ COMMAND(seal_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::SealChunkRequest request;
-    pain::core::manusya::SealChunkResponse response;
-    pain::core::manusya::ManusyaService::Stub stub(&channel);
+    pain::proto::manusya::SealChunkRequest request;
+    pain::proto::manusya::SealChunkResponse response;
+    pain::proto::manusya::ManusyaService::Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(chunk_id);
@@ -326,9 +326,9 @@ COMMAND(remove_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::RemoveChunkRequest request;
-    pain::core::manusya::RemoveChunkResponse response;
-    pain::core::manusya::ManusyaService::Stub stub(&channel);
+    pain::proto::manusya::RemoveChunkRequest request;
+    pain::proto::manusya::RemoveChunkResponse response;
+    pain::proto::manusya::ManusyaService::Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(chunk_id);
@@ -368,9 +368,9 @@ COMMAND(query_chunk) {
     }
 
     brpc::Controller cntl;
-    pain::core::manusya::QueryChunkRequest request;
-    pain::core::manusya::QueryChunkResponse response;
-    pain::core::manusya::ManusyaService::Stub stub(&channel);
+    pain::proto::manusya::QueryChunkRequest request;
+    pain::proto::manusya::QueryChunkResponse response;
+    pain::proto::manusya::ManusyaService::Stub stub(&channel);
     inject_tracer(&cntl);
 
     auto uuid = pain::UUID::from_str_or_die(chunk_id);
