@@ -8,6 +8,8 @@
 #include <string>
 #include <boost/assert.hpp>
 
+#define PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR "\1"
+
 namespace pain::common {
 
 RocksdbStore::RocksdbStore() {}
@@ -217,7 +219,7 @@ Status RocksdbStore::recover(const char* from) {
 }
 
 std::string RocksdbStore::make_key(std::string_view key, std::string_view field) const {
-    return std::format("{}_{}", key, field);
+    return std::format("{}" PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR "{}", key, field);
 }
 
 Status RocksdbStore::hset(std::string_view key, std::string_view field, std::string_view value) {
@@ -270,7 +272,9 @@ Status RocksdbStore::hlen(std::string_view key, size_t* len) {
 
 class RocksdbStoreIterator : public RocksdbStore::Iterator {
 public:
-    RocksdbStoreIterator(rocksdb::Iterator* iter, std::string_view prefix) : _iter(iter), _prefix(prefix) {}
+    RocksdbStoreIterator(rocksdb::Iterator* iter, std::string_view prefix) :
+        _iter(iter),
+        _prefix(fmt::format("{}" PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR, prefix)) {}
     ~RocksdbStoreIterator() override {
         delete _iter;
     }
@@ -310,3 +314,5 @@ bool RocksdbStore::hexists(std::string_view key, std::string_view field) {
 }
 
 } // namespace pain::common
+
+#undef PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR

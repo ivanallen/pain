@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     logging::SetLogSink(&s_spdlog_sink);
 
     pain::LoggerOptions logger_options = {
-        .file_name = "test_deva.log",
+        .file_name = "test_common.log",
         .name = "deva",
         .level_log = spdlog::level::from_str(FLAGS_log_level),
         .async_threads = 1,
