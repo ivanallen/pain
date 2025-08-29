@@ -1,7 +1,7 @@
 # Pain
 
-[![Linux](https://github.com/ivanallen/pain/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/ivanallen/pain/actions/workflows/ubuntu.yml)
-[![Coverage Status](https://coveralls.io/repos/github/ivanallen/pain/badge.svg)](https://coveralls.io/github/ivanallen/pain)
+[![Linux](https://github.com/paticcaa/pain/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/paticcaa/pain/actions/workflows/ubuntu.yml)
+[![Coverage Status](https://coveralls.io/repos/github/paticcaa/pain/badge.svg)](https://coveralls.io/github/paticcaa/pain)
 
 A high-performance distributed storage system designed for scalability and reliability.
 

@@ -6,13 +6,13 @@
 
 在开始贡献之前，请确保您已经：
 
-1. 阅读并理解了项目的 [README.md](https://github.com/ivanallen/pain/blob/main/README.md)
+1. 阅读并理解了项目的 [README.md](https://github.com/paticcaa/pain/blob/main/README.md)
 2. 按照说明配置好了开发环境
 3. 熟悉项目的基本架构和代码风格
 
 ## 开发环境设置
 
-请按照 [README.md](https://github.com/ivanallen/pain/blob/main/README.md) 中的详细说明配置您的开发环境，包括必要的依赖项和工具链。
+请按照 [README.md](https://github.com/paticcaa/pain/blob/main/README.md) 中的详细说明配置您的开发环境，包括必要的依赖项和工具链。
 
 ## 代码质量要求
 

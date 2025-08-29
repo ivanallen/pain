@@ -1,5 +1,5 @@
 {
-    "url": "https://github.com/ivanallen/spdk/archive/refs/tags/v24.09.02.tar.gz",
+    "url": "https://github.com/paticcaa/spdk/archive/refs/tags/v24.09.02.tar.gz",
     "strip_prefix": "spdk-24.09.02",
     "integrity": "sha256-mEiQm3Wcx/FgCt2dfScrfZzN55K89k4Y0pgBP8z5bYo=",
     "patch_strip": 1,
