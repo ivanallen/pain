@@ -6,13 +6,13 @@ Thank you for your interest in the Pain project! We warmly welcome community con
 
 Before you begin contributing, please ensure that you have:
 
-1. Read and understood the project's [README.md](https://github.com/ivanallen/pain/blob/main/README.md)
+1. Read and understood the project's [README.md](https://github.com/paticcaa/pain/blob/main/README.md)
 2. Configured your development environment according to the instructions
 3. Familiarized yourself with the project's basic architecture and coding style
 
 ## Development Environment Setup
 
-Please follow the detailed instructions in [README.md](https://github.com/ivanallen/pain/blob/main/README.md) to configure your development environment, including necessary dependencies and toolchains.
+Please follow the detailed instructions in [README.md](https://github.com/paticcaa/pain/blob/main/README.md) to configure your development environment, including necessary dependencies and toolchains.
 
 ## Code Quality Requirements
 
