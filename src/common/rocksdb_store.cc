@@ -12,7 +12,10 @@
 
 namespace pain::common {
 
-RocksdbStore::RocksdbStore() {}
+RocksdbStore::RocksdbStore() {
+    _write_options.disableWAL = true;
+    _write_options.sync = false;
+}
 
 RocksdbStore::~RocksdbStore() {
     auto status = close();
@@ -223,10 +226,7 @@ std::string RocksdbStore::make_key(std::string_view key, std::string_view field)
 }
 
 Status RocksdbStore::hset(std::string_view key, std::string_view field, std::string_view value) {
-    rocksdb::WriteOptions options;
-    options.disableWAL = true;
-    options.sync = false;
-    rocksdb::Status status = _db->Put(options, make_key(key, field), value);
+    rocksdb::Status status = _db->Put(_write_options, make_key(key, field), value);
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hset failed") //
                    ("key", key)("field", field)("error", status.ToString()));
@@ -236,8 +236,7 @@ Status RocksdbStore::hset(std::string_view key, std::string_view field, std::str
 }
 
 Status RocksdbStore::hget(std::string_view key, std::string_view field, std::string* value) {
-    rocksdb::ReadOptions options;
-    rocksdb::Status status = _db->Get(options, make_key(key, field), value);
+    rocksdb::Status status = _db->Get(_read_options, make_key(key, field), value);
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hget failed") //
                    ("key", key)("field", field)("error", status.ToString()));
@@ -247,10 +246,7 @@ Status RocksdbStore::hget(std::string_view key, std::string_view field, std::str
 }
 
 Status RocksdbStore::hdel(std::string_view key, std::string_view field) {
-    rocksdb::WriteOptions options;
-    options.disableWAL = true;
-    options.sync = false;
-    rocksdb::Status status = _db->Delete(options, make_key(key, field));
+    rocksdb::Status status = _db->Delete(_write_options, make_key(key, field));
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hdel failed") //
                    ("key", key)("field", field)("error", status.ToString()));
@@ -301,8 +297,7 @@ private:
 };
 
 std::shared_ptr<RocksdbStore::Iterator> RocksdbStore::hgetall(std::string_view key) {
-    rocksdb::ReadOptions options;
-    rocksdb::Iterator* iter = _db->NewIterator(options);
+    rocksdb::Iterator* iter = _db->NewIterator(_read_options);
     iter->Seek(key);
     return std::make_shared<RocksdbStoreIterator>(iter, key);
 }

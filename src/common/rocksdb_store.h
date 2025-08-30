@@ -1,4 +1,5 @@
 #pragma once
+#include <rocksdb/options.h>
 #include "common/store.h"
 
 namespace rocksdb {
@@ -29,6 +30,8 @@ private:
     void open_or_die();
     std::string _data_path;
     rocksdb::DB* _db;
+    rocksdb::WriteOptions _write_options;
+    rocksdb::ReadOptions _read_options;
 };
 
 } // namespace pain::common
