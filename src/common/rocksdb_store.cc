@@ -5,8 +5,11 @@
 #include <pain/base/types.h>
 #include <rocksdb/db.h>
 #include <rocksdb/utilities/checkpoint.h>
+#include <rocksdb/utilities/transaction.h>
+#include <rocksdb/utilities/transaction_db.h>
 #include <string>
 #include <boost/assert.hpp>
+#include "common/rocksdb_txn.h"
 
 #define PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR "\1"
 
@@ -42,12 +45,13 @@ Status RocksdbStore::open(const char* data_path, RocksdbStorePtr* store) {
         }
     }
     rocksdb::Options options;
+    rocksdb::TransactionDBOptions txn_options;
     options.create_if_missing = true;
     PLOG_INFO(("desc", "open rocksdb") //
               ("path", data_path));
 
-    rocksdb::DB* db = nullptr;
-    rocksdb::Status status = rocksdb::DB::Open(options, data_path, &db);
+    rocksdb::TransactionDB* txn_db = nullptr;
+    rocksdb::Status status = rocksdb::TransactionDB::Open(options, txn_options, data_path, &txn_db);
     if (!status.ok()) {
         PLOG_ERROR(("desc", "open rocksdb failed") //
                    ("path", data_path)("error", status.ToString()));
@@ -56,19 +60,22 @@ Status RocksdbStore::open(const char* data_path, RocksdbStorePtr* store) {
 
     RocksdbStorePtr rocksdb_store = new RocksdbStore();
     rocksdb_store->_data_path = data_path;
-    rocksdb_store->_db = db;
+    rocksdb_store->_db = txn_db->GetBaseDB();
+    rocksdb_store->_txn_db = txn_db;
     *store = rocksdb_store;
     return Status::OK();
 }
 
 void RocksdbStore::open_or_die() {
     rocksdb::Options options;
-    rocksdb::Status status = rocksdb::DB::Open(options, _data_path, &_db);
+    rocksdb::TransactionDBOptions txn_options;
+    rocksdb::Status status = rocksdb::TransactionDB::Open(options, txn_options, _data_path, &_txn_db);
     if (!status.ok()) {
         PLOG_ERROR(("desc", "open rocksdb failed") //
                    ("path", _data_path)("error", status.ToString()));
         BOOST_ASSERT_MSG(false, status.ToString().c_str());
     }
+    _db = _txn_db->GetBaseDB();
 }
 
 Status RocksdbStore::close() {
@@ -83,7 +90,8 @@ Status RocksdbStore::close() {
                    ("path", _data_path)("error", status.ToString()));
         return Status(EIO, status.ToString());
     }
-    delete _db;
+    delete _txn_db;
+    _txn_db = nullptr;
     _db = nullptr;
     return Status::OK();
 }
@@ -266,7 +274,7 @@ Status RocksdbStore::hlen(std::string_view key, size_t* len) {
     return Status::OK();
 }
 
-class RocksdbStoreIterator : public RocksdbStore::Iterator {
+class RocksdbStoreIterator : public Store::Iterator {
 public:
     RocksdbStoreIterator(rocksdb::Iterator* iter, std::string_view prefix) :
         _iter(iter),
@@ -306,6 +314,11 @@ bool RocksdbStore::hexists(std::string_view key, std::string_view field) {
     std::string value;
     auto status = hget(key, field, &value);
     return status.ok();
+}
+
+std::shared_ptr<RocksdbTxn> RocksdbStore::begin_txn() {
+    rocksdb::Transaction* txn = _txn_db->BeginTransaction(_write_options);
+    return std::make_shared<RocksdbTxn>(txn);
 }
 
 } // namespace pain::common

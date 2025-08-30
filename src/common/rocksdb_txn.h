@@ -1,24 +1,22 @@
 #pragma once
+
 #include <rocksdb/options.h>
-#include "common/rocksdb_txn.h"
 #include "common/store.h"
+#include "common/txn.h"
 
 namespace rocksdb {
-class DB;
-class TransactionDB;
-} // namespace rocksdb
-namespace pain::common {
-class RocksdbStore;
-using RocksdbStorePtr = boost::intrusive_ptr<RocksdbStore>;
-class RocksdbStore : public Store {
-public:
-    RocksdbStore();
-    ~RocksdbStore() override;
+class Transaction;
+}
 
-    static Status open(const char* data_path, RocksdbStorePtr* store);
-    Status close();
-    Status recover(const char* from);
-    Status check_point(const char* to, std::vector<std::string>* files);
+namespace pain::common {
+
+class RocksdbTxn : public Txn, public Store {
+public:
+    RocksdbTxn(rocksdb::Transaction* txn);
+    ~RocksdbTxn() override;
+
+    Status commit() override;
+    Status rollback() override;
 
     Status hset(std::string_view key, std::string_view field, std::string_view value) override;
     Status hget(std::string_view key, std::string_view field, std::string* value) override;
@@ -27,15 +25,9 @@ public:
     std::shared_ptr<Iterator> hgetall(std::string_view key) override;
     bool hexists(std::string_view key, std::string_view field) override;
 
-    std::shared_ptr<RocksdbTxn> begin_txn();
-
 private:
     std::string make_key(std::string_view key, std::string_view field) const;
-    void open_or_die();
-    std::string _data_path;
-    rocksdb::DB* _db;
-    rocksdb::TransactionDB* _txn_db;
-    rocksdb::WriteOptions _write_options;
+    rocksdb::Transaction* _txn;
     rocksdb::ReadOptions _read_options;
 };
 
