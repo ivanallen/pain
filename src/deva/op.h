@@ -6,20 +6,28 @@
 #include <boost/intrusive_ptr.hpp>
 #include <magic_enum/magic_enum.hpp>
 
+#define DEFINE_DEVA_OP(code, name, need_apply) k##name = ((code << 1) | (need_apply ? 1 : 0))
+
 namespace pain::deva {
 
-enum class OpType {
+enum class OpType : uint32_t {
     kInvalid = 0,
     // DevaOp: 1 ~ 100
-    kCreateFile = 1,
-    kCreateDir = 2,
-    kRemoveFile = 3,
-    kSealFile = 4,
-    kCreateChunk = 5,
-    kCheckInChunk = 6,
-    kSealChunk = 7,
-    kSealAndNewChunk = 8,
+    DEFINE_DEVA_OP(1, CreateFile, true),
+    DEFINE_DEVA_OP(2, CreateDir, true),
+    DEFINE_DEVA_OP(3, RemoveFile, true),
+    DEFINE_DEVA_OP(4, SealFile, true),
+    DEFINE_DEVA_OP(5, CreateChunk, true),
+    DEFINE_DEVA_OP(6, CheckInChunk, true),
+    DEFINE_DEVA_OP(7, SealChunk, true),
+    DEFINE_DEVA_OP(8, SealAndNewChunk, true),
+    DEFINE_DEVA_OP(9, ReadDir, false),
+    DEFINE_DEVA_OP(100, MaxDevaOp, true),
 };
+
+inline constexpr bool need_apply(OpType type) {
+    return (static_cast<int>(type) & 1) == 1;
+}
 
 struct OpMeta {
     int32_t version; // op version
@@ -72,3 +80,5 @@ struct fmt::formatter<pain::deva::OpType> : public fmt::formatter<std::string_vi
         return fmt::formatter<std::string_view>::format(name, ctx);
     }
 };
+
+#undef DEFINE_DEVA_OP

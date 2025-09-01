@@ -33,6 +33,14 @@ message CreateDirResponse {
     FileInfo file_info = 1;
 }
 
+message ReadDirRequest {
+    string path = 1;
+}
+
+message ReadDirResponse {
+    repeated DirEntry entries = 1;
+}
+
 message RemoveFileRequest {}
 
 message RemoveFileResponse {}

@@ -30,7 +30,7 @@ public:
         node_options.raft_meta_uri = fmt::format("{}/{}/raft_meta", prefix, group);
         node_options.snapshot_uri = fmt::format("{}/{}/snapshot", prefix, group);
 
-        std::string rocksdb_path = fmt::format("{}/{}/db", prefix, group);
+        std::string rocksdb_path = fmt::format("{}/{}/db", data_path, group);
         common::RocksdbStorePtr store;
         auto status = common::RocksdbStore::open(rocksdb_path.c_str(), &store);
         BOOST_ASSERT_MSG(status.ok(), "Fail to open rocksdb store");

@@ -26,6 +26,7 @@ public:
 
     DEVA_ENTRY(CreateFile);
     DEVA_ENTRY(CreateDir);
+    DEVA_ENTRY(ReadDir);
     DEVA_ENTRY(RemoveFile);
     DEVA_ENTRY(SealFile);
     DEVA_ENTRY(CreateChunk);

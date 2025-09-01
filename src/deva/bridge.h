@@ -12,15 +12,12 @@ namespace pain::deva {
 
 template <typename ContainerType, OpType OpType, typename Request, typename Response>
 void bridge(RsmPtr rsm, const Request& request, Response* response, std::move_only_function<void(Status)> cb) {
-    // TODO: get rsm by pool id and partition id
-    (new ContainerOp<ContainerType, Request, Response>(OpType,
-                                                       rsm,
-                                                       request,
-                                                       response,
-                                                       [cb = std::move(cb)](Status status) mutable {
-                                                           cb(std::move(status));
-                                                       }))
-        ->apply();
+    // TODO: get rsm by partition id
+    auto op = new ContainerOp<ContainerType, Request, Response>(
+        OpType, rsm, request, response, [cb = std::move(cb)](Status status) mutable {
+            cb(std::move(status));
+        });
+    op->apply();
 }
 
 // Future style
