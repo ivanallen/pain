@@ -3,6 +3,7 @@
 #include <boost/assert.hpp>
 #include "pain/proto/deva_store.pb.h"
 #include "deva/deva.h"
+#include "deva/op.h"
 
 namespace pain::deva {
 
@@ -11,7 +12,7 @@ OpPtr create(RsmPtr rsm) {
     Request request;
     OpPtr op = nullptr;
 
-    if constexpr (static_cast<int>(OpType) < 100) { // NOLINT(readability-magic-numbers)
+    if constexpr (OpType < OpType::kMaxDevaOp) {
         op = new ContainerOp<Deva, Request, Response>(OpType, rsm, request, nullptr);
     }
     return op;
@@ -27,6 +28,7 @@ OpPtr decode(OpType op_type, IOBuf* buf, RsmPtr rsm) {
         switch (op_type) {
             BRANCH(CreateFile)
             BRANCH(CreateDir)
+            BRANCH(ReadDir)
             BRANCH(RemoveFile)
             BRANCH(SealFile)
             BRANCH(CreateChunk)

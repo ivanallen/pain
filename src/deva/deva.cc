@@ -87,6 +87,31 @@ DEVA_METHOD(CreateDir) {
     return Status::OK();
 }
 
+DEVA_METHOD(ReadDir) {
+    SPAN(span);
+    PLOG_DEBUG(("desc", "read_dir")("index", index)("request", request->DebugString()));
+    auto& path = request->path();
+    UUID parent_dir_uuid;
+    FileType file_type = FileType::kNone;
+    auto status = _namespace.lookup(path.c_str(), &parent_dir_uuid, &file_type);
+    if (!status.ok()) {
+        return status;
+    }
+    if (file_type != FileType::kDirectory) {
+        return Status(EINVAL, fmt::format("{} is not a directory", path.c_str()));
+    }
+    std::list<DirEntry> entries;
+    _namespace.list(parent_dir_uuid, &entries);
+    for (auto& entry : entries) {
+        auto dir_entry = response->add_entries();
+        dir_entry->mutable_file_id()->set_high(entry.inode.high());
+        dir_entry->mutable_file_id()->set_low(entry.inode.low());
+        dir_entry->set_type(static_cast<pain::proto::FileType>(entry.type));
+        dir_entry->set_name(std::move(entry.name));
+    }
+    return Status::OK();
+}
+
 DEVA_METHOD(RemoveFile) {
     SPAN(span);
     PLOG_INFO(("desc", "remove_file")("index", index));

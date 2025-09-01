@@ -93,6 +93,25 @@ DEVA_SERVICE_METHOD(Mkdir) {
     response->mutable_header()->set_message("ok");
 }
 
+DEVA_SERVICE_METHOD(ReadDir) {
+    brpc::ClosureGuard done_guard(done);
+    DEFINE_SPAN(span, controller);
+    auto& path = request->path();
+    pain::proto::deva::store::ReadDirRequest read_dir_request;
+    pain::proto::deva::store::ReadDirResponse read_dir_response;
+    read_dir_request.set_path(path);
+    auto status = bridge<Deva, OpType::kReadDir>(_rsm, read_dir_request, &read_dir_response).get();
+    if (!status.ok()) {
+        PLOG_ERROR(("desc", "failed to read dir")("error", status.error_str()));
+        response->mutable_header()->set_status(status.error_code());
+        response->mutable_header()->set_message(status.error_str());
+        return;
+    }
+    response->mutable_entries()->Swap(read_dir_response.mutable_entries());
+    response->mutable_header()->set_status(0);
+    response->mutable_header()->set_message("ok");
+}
+
 DEVA_SERVICE_METHOD(SealFile) {
     brpc::ClosureGuard done_guard(done);
     DEFINE_SPAN(span, controller);

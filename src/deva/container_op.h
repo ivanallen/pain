@@ -57,14 +57,18 @@ public:
 
     void apply() override {
         SPAN(span);
-        braft::Task task;
-        IOBuf buf;
-        OpPtr self(this);
-        pain::deva::encode(self, &buf);
-        task.data = &buf;
-        task.done = new OpClosure(self, span);
-        task.expected_term = -1;
-        _rsm->apply(task);
+        if (need_apply(_type)) {
+            braft::Task task;
+            IOBuf buf;
+            OpPtr self(this);
+            pain::deva::encode(self, &buf);
+            task.data = &buf;
+            task.done = new OpClosure(self, span);
+            task.expected_term = -1;
+            _rsm->apply(task);
+        } else {
+            on_apply(0);
+        }
         PLOG_DEBUG(("desc", "apply op")("type", _type));
     }
 
