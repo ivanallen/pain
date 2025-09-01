@@ -9,7 +9,8 @@
 #include <rocksdb/utilities/transaction_db.h>
 #include <string>
 #include <boost/assert.hpp>
-#include "common/rocksdb_txn.h"
+#include "common/rocksdb_txn_store.h"
+#include "common/rocksdb_util.h"
 
 #define PAIN_COMMON_ROCKSDB_STORE_KEY_VALUE_SEPARATOR "\1"
 
@@ -55,7 +56,7 @@ Status RocksdbStore::open(const char* data_path, RocksdbStorePtr* store) {
     if (!status.ok()) {
         PLOG_ERROR(("desc", "open rocksdb failed") //
                    ("path", data_path)("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
 
     RocksdbStorePtr rocksdb_store = new RocksdbStore();
@@ -88,7 +89,7 @@ Status RocksdbStore::close() {
     if (!status.ok()) {
         PLOG_ERROR(("desc", "close rocksdb failed") //
                    ("path", _data_path)("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
     delete _txn_db;
     _txn_db = nullptr;
@@ -106,7 +107,7 @@ Status RocksdbStore::check_point(const char* to, std::vector<std::string>* files
     if (!st.ok()) {
         PLOG_ERROR(("desc", "flush rocksdb failed") //
                    ("error", st.ToString()));
-        return Status(EIO, st.ToString());
+        return convert_to_pain_status(st);
     }
 
     rocksdb::Checkpoint* cpt = nullptr;
@@ -114,7 +115,7 @@ Status RocksdbStore::check_point(const char* to, std::vector<std::string>* files
     if (!status.ok()) {
         PLOG_ERROR(("desc", "create checkpoint failed") //
                    ("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
     std::unique_ptr<rocksdb::Checkpoint> cpt_guard(cpt);
 
@@ -122,7 +123,7 @@ Status RocksdbStore::check_point(const char* to, std::vector<std::string>* files
     if (!status.ok()) {
         PLOG_ERROR(("desc", "create checkpoint failed") //
                    ("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
 
     auto fs = braft::default_file_system();
@@ -196,7 +197,7 @@ Status RocksdbStore::recover(const char* from) {
     if (!st.ok()) {
         PLOG_ERROR(("desc", "recover rocksdb failed") //
                    ("from", from)("error", st.ToString()));
-        return Status(EIO, st.ToString());
+        return convert_to_pain_status(st);
     }
 
     rocksdb::Checkpoint* cpt = nullptr;
@@ -204,7 +205,7 @@ Status RocksdbStore::recover(const char* from) {
     if (!st.ok()) {
         PLOG_ERROR(("desc", "create checkpoint failed") //
                    ("error", st.ToString()));
-        return Status(EIO, st.ToString());
+        return convert_to_pain_status(st);
     }
     std::unique_ptr<rocksdb::Checkpoint> cpt_guard(cpt);
 
@@ -212,7 +213,7 @@ Status RocksdbStore::recover(const char* from) {
     if (!st.ok()) {
         PLOG_ERROR(("desc", "create checkpoint failed") //
                    ("error", st.ToString()));
-        return Status(EIO, st.ToString());
+        return convert_to_pain_status(st);
     }
 
     rollback_dir.release();
@@ -238,7 +239,7 @@ Status RocksdbStore::hset(std::string_view key, std::string_view field, std::str
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hset failed") //
                    ("key", key)("field", field)("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
     return Status::OK();
 }
@@ -248,7 +249,7 @@ Status RocksdbStore::hget(std::string_view key, std::string_view field, std::str
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hget failed") //
                    ("key", key)("field", field)("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
     return Status::OK();
 }
@@ -258,7 +259,7 @@ Status RocksdbStore::hdel(std::string_view key, std::string_view field) {
     if (!status.ok()) {
         PLOG_ERROR(("desc", "hdel failed") //
                    ("key", key)("field", field)("error", status.ToString()));
-        return Status(EIO, status.ToString());
+        return convert_to_pain_status(status);
     }
     return Status::OK();
 }
@@ -316,9 +317,9 @@ bool RocksdbStore::hexists(std::string_view key, std::string_view field) {
     return status.ok();
 }
 
-std::shared_ptr<RocksdbTxn> RocksdbStore::begin_txn() {
+std::shared_ptr<TxnStore> RocksdbStore::begin_txn() {
     rocksdb::Transaction* txn = _txn_db->BeginTransaction(_write_options);
-    return std::make_shared<RocksdbTxn>(txn);
+    return std::make_shared<RocksdbTxnStore>(txn);
 }
 
 } // namespace pain::common

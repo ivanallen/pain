@@ -15,14 +15,14 @@
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 
-#include "common/rocksdb_txn.h"
+#include "common/rocksdb_txn_store.h"
 
 // NOLINTBEGIN(readability-magic-numbers)
 
 using namespace pain;
 using namespace pain::common;
 
-class TestRocksdbTxn : public testing::Test {
+class TestRocksdbTxnStore : public testing::Test {
 protected:
     void SetUp() override {
         std::string temp_dir = "/tmp/test_rocksdb_txn_XXXXXX";
@@ -40,7 +40,7 @@ protected:
     }
 
     void TearDown() override {
-        if (_txn_db) {
+        if (_txn_db != nullptr) {
             delete _txn_db;
             _txn_db = nullptr;
         }
@@ -48,10 +48,10 @@ protected:
     }
 
     // 创建新的事务
-    std::unique_ptr<RocksdbTxn> create_transaction() {
+    std::unique_ptr<RocksdbTxnStore> create_transaction() {
         auto txn = _txn_db->BeginTransaction(rocksdb::WriteOptions());
         BOOST_ASSERT(txn != nullptr);
-        return std::make_unique<RocksdbTxn>(txn);
+        return std::make_unique<RocksdbTxnStore>(txn);
     }
 
     // 验证数据是否存在
@@ -81,7 +81,7 @@ private:
 };
 
 // 测试构造函数和析构函数
-TEST_F(TestRocksdbTxn, ConstructorAndDestructor) {
+TEST_F(TestRocksdbTxnStore, ConstructorAndDestructor) {
     auto txn = create_transaction();
     ASSERT_TRUE(txn != nullptr);
 
@@ -90,7 +90,7 @@ TEST_F(TestRocksdbTxn, ConstructorAndDestructor) {
 }
 
 // 测试 hset 方法
-TEST_F(TestRocksdbTxn, Hset) {
+TEST_F(TestRocksdbTxnStore, Hset) {
     auto txn = create_transaction();
 
     // 测试基本的 hset 操作
@@ -111,7 +111,7 @@ TEST_F(TestRocksdbTxn, Hset) {
 }
 
 // 测试 hset 多个字段
-TEST_F(TestRocksdbTxn, HsetMultipleFields) {
+TEST_F(TestRocksdbTxnStore, HsetMultipleFields) {
     auto txn = create_transaction();
 
     // 设置多个字段
@@ -140,7 +140,7 @@ TEST_F(TestRocksdbTxn, HsetMultipleFields) {
 }
 
 // 测试 hset 空值
-TEST_F(TestRocksdbTxn, HsetEmptyValue) {
+TEST_F(TestRocksdbTxnStore, HsetEmptyValue) {
     auto txn = create_transaction();
 
     auto status = txn->hset("empty", "field", "");
@@ -154,7 +154,7 @@ TEST_F(TestRocksdbTxn, HsetEmptyValue) {
 }
 
 // 测试 hset 特殊字符
-TEST_F(TestRocksdbTxn, HsetSpecialCharacters) {
+TEST_F(TestRocksdbTxnStore, HsetSpecialCharacters) {
     auto txn = create_transaction();
 
     // 测试包含分隔符的 key 和 field
@@ -170,7 +170,7 @@ TEST_F(TestRocksdbTxn, HsetSpecialCharacters) {
 }
 
 // 测试 hdel 方法
-TEST_F(TestRocksdbTxn, Hdel) {
+TEST_F(TestRocksdbTxnStore, Hdel) {
     auto txn = create_transaction();
 
     // 先设置一个值
@@ -200,7 +200,7 @@ TEST_F(TestRocksdbTxn, Hdel) {
 }
 
 // 测试删除不存在的字段
-TEST_F(TestRocksdbTxn, HdelNonExistentField) {
+TEST_F(TestRocksdbTxnStore, HdelNonExistentField) {
     auto txn = create_transaction();
 
     // 删除不存在的字段应该成功（RocksDB 的 Delete 操作对不存在的 key 是幂等的）
@@ -212,7 +212,7 @@ TEST_F(TestRocksdbTxn, HdelNonExistentField) {
 }
 
 // 测试读取不存在的字段
-TEST_F(TestRocksdbTxn, ReadNonExistentField) {
+TEST_F(TestRocksdbTxnStore, ReadNonExistentField) {
     auto txn = create_transaction();
 
     // 尝试读取不存在的字段应该失败
@@ -240,7 +240,7 @@ TEST_F(TestRocksdbTxn, ReadNonExistentField) {
 }
 
 // 测试 commit 方法
-TEST_F(TestRocksdbTxn, Commit) {
+TEST_F(TestRocksdbTxnStore, Commit) {
     auto txn = create_transaction();
 
     auto status = txn->hset("commit_test", "field", "value");
@@ -256,7 +256,7 @@ TEST_F(TestRocksdbTxn, Commit) {
 }
 
 // 测试 rollback 方法
-TEST_F(TestRocksdbTxn, Rollback) {
+TEST_F(TestRocksdbTxnStore, Rollback) {
     auto txn = create_transaction();
 
     auto status = txn->hset("rollback_test", "field", "value");
@@ -277,7 +277,7 @@ TEST_F(TestRocksdbTxn, Rollback) {
 }
 
 // 测试多次 commit 或 rollback
-TEST_F(TestRocksdbTxn, MultipleCommitOrRollback) {
+TEST_F(TestRocksdbTxnStore, MultipleCommitOrRollback) {
     auto txn = create_transaction();
 
     auto status = txn->hset("multi_test", "field", "value");
@@ -297,7 +297,7 @@ TEST_F(TestRocksdbTxn, MultipleCommitOrRollback) {
 }
 
 // 测试 hget 方法
-TEST_F(TestRocksdbTxn, Hget) {
+TEST_F(TestRocksdbTxnStore, Hget) {
     auto txn = create_transaction();
 
     // 先设置一个值
@@ -320,7 +320,7 @@ TEST_F(TestRocksdbTxn, Hget) {
 }
 
 // 测试 hlen 方法
-TEST_F(TestRocksdbTxn, Hlen) {
+TEST_F(TestRocksdbTxnStore, Hlen) {
     auto txn = create_transaction();
 
     // 设置多个字段
@@ -350,7 +350,7 @@ TEST_F(TestRocksdbTxn, Hlen) {
 }
 
 // 测试 hgetall 方法
-TEST_F(TestRocksdbTxn, Hgetall) {
+TEST_F(TestRocksdbTxnStore, Hgetall) {
     auto txn = create_transaction();
 
     // 设置多个字段
@@ -395,7 +395,7 @@ TEST_F(TestRocksdbTxn, Hgetall) {
 }
 
 // 测试 hexists 方法
-TEST_F(TestRocksdbTxn, Hexists) {
+TEST_F(TestRocksdbTxnStore, Hexists) {
     auto txn = create_transaction();
 
     // 设置一个字段
@@ -420,7 +420,7 @@ TEST_F(TestRocksdbTxn, Hexists) {
 }
 
 // 测试 make_key 私有方法（通过公共接口间接测试）
-TEST_F(TestRocksdbTxn, MakeKeyFormat) {
+TEST_F(TestRocksdbTxnStore, MakeKeyFormat) {
     auto txn = create_transaction();
 
     // 通过 hset 和 hdel 测试 key 格式
@@ -436,7 +436,7 @@ TEST_F(TestRocksdbTxn, MakeKeyFormat) {
 }
 
 // 测试事务中的读取操作
-TEST_F(TestRocksdbTxn, TransactionReadOperations) {
+TEST_F(TestRocksdbTxnStore, TransactionReadOperations) {
     auto txn = create_transaction();
 
     // 设置多个字段
@@ -500,7 +500,7 @@ TEST_F(TestRocksdbTxn, TransactionReadOperations) {
 }
 
 // 测试事务隔离性
-TEST_F(TestRocksdbTxn, TransactionIsolation) {
+TEST_F(TestRocksdbTxnStore, TransactionIsolation) {
     // 第一个事务设置值
     auto txn1 = create_transaction();
     auto status = txn1->hset("isolation_test", "field", "value1");
@@ -541,9 +541,9 @@ TEST_F(TestRocksdbTxn, TransactionIsolation) {
 }
 
 // 测试并发事务
-TEST_F(TestRocksdbTxn, ConcurrentTransactions) {
+TEST_F(TestRocksdbTxnStore, ConcurrentTransactions) {
     const int num_transactions = 10;
-    std::vector<std::unique_ptr<RocksdbTxn>> transactions;
+    std::vector<std::unique_ptr<RocksdbTxnStore>> transactions;
     std::vector<std::thread> threads;
 
     // 创建多个事务
@@ -572,7 +572,7 @@ TEST_F(TestRocksdbTxn, ConcurrentTransactions) {
 }
 
 // 测试错误处理
-TEST_F(TestRocksdbTxn, ErrorHandling) {
+TEST_F(TestRocksdbTxnStore, ErrorHandling) {
     // 测试无效的 key 或 field（空字符串）
     auto txn = create_transaction();
     auto status = txn->hset("", "field", "value");
@@ -593,7 +593,7 @@ TEST_F(TestRocksdbTxn, ErrorHandling) {
 }
 
 // 性能测试
-TEST_F(TestRocksdbTxn, PerformanceTest) {
+TEST_F(TestRocksdbTxnStore, PerformanceTest) {
     const int num_operations = 1000;
     auto txn = create_transaction();
 

@@ -7,12 +7,15 @@
 
 #include <pain/base/types.h>
 #include <pain/base/uuid.h>
+#include "pain/proto/common.pb.h"
+#include "common/store.h"
 
 namespace pain::deva {
 
 enum class FileType {
-    kFile = 0,
-    kDirectory,
+    kNone = 0,
+    kFile = 1,
+    kDirectory = 2,
 };
 
 struct DirEntry {
@@ -23,8 +26,7 @@ struct DirEntry {
 
 class Namespace {
 public:
-    static Namespace& instance();
-    Namespace();
+    Namespace(common::StorePtr store);
     Status load();
     const UUID& root() const {
         return _root;
@@ -37,8 +39,10 @@ public:
 private:
     Status parse_path(const char* path, std::list<std::string_view>* components) const;
     UUID _root;
-    std::map<UUID, std::list<DirEntry>> _entries;
-    mutable bthread::Mutex _mutex;
+    // std::map<UUID, std::list<DirEntry>> _entries;
+    common::StorePtr _store;
+    const char* _dentry_key = "dentry";
+    const char* _inode_key = "inode";
 };
 
 } // namespace pain::deva
@@ -49,6 +53,9 @@ struct fmt::formatter<pain::deva::FileType> : fmt::formatter<std::string_view> {
     auto format(pain::deva::FileType t, FormatContext& ctx) const {
         std::string_view name;
         switch (t) {
+        case pain::deva::FileType::kNone:
+            name = "NONE";
+            break;
         case pain::deva::FileType::kFile:
             name = "FILE";
             break;

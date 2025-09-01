@@ -74,3 +74,14 @@ message FileInfo {
     repeated Pair xattrs = 10;
     repeated ChunkInfo chunk_infos = 11;
 }
+
+message DirEntry {
+    UUID file_id = 1;
+    UUID parent_file_id = 2;
+    string name = 3;
+    FileType type = 4;
+}
+
+message DirEntries {
+    repeated DirEntry entries = 1;
+}

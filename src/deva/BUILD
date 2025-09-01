@@ -21,6 +21,7 @@ cc_library(
     linkopts = PAIN_LINKOPTS,
     deps = [
         "//src/base:pain_base",
+        "//src/common:pain_common",
         "//protocols/pain/proto:cc_pain_deva_proto",
         "@brpc",
         "@braft",

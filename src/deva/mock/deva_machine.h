@@ -1,6 +1,7 @@
 #include <brpc/server.h>
 #include <butil/debug/leak_annotations.h>
 #include <pain/base/types.h>
+#include "common/rocksdb_store.h"
 #include "deva/deva.h"
 #include "deva/deva_service_impl.h"
 #include "deva/rsm.h"
@@ -29,7 +30,11 @@ public:
         node_options.raft_meta_uri = fmt::format("{}/{}/raft_meta", prefix, group);
         node_options.snapshot_uri = fmt::format("{}/{}/snapshot", prefix, group);
 
-        _rsm = new Rsm(addr, group, node_options, new Deva());
+        std::string rocksdb_path = fmt::format("{}/{}/db", prefix, group);
+        common::RocksdbStorePtr store;
+        auto status = common::RocksdbStore::open(rocksdb_path.c_str(), &store);
+        BOOST_ASSERT_MSG(status.ok(), "Fail to open rocksdb store");
+        _rsm = new Rsm(addr, group, node_options, new Deva(store));
     }
 
     Status start() {

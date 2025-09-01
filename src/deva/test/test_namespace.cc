@@ -3,13 +3,36 @@
 #include <fmt/ranges.h>
 #include <fmt/std.h>
 
+#include <pain/base/path.h>
+#include "common/rocksdb_store.h"
 #include "deva/namespace.h"
 
 using namespace pain;
 using namespace pain::deva;
 
-TEST(Namespace, create) {
-    Namespace ns;
+class TestNamespace : public ::testing::Test {
+protected:
+    void SetUp() override {
+        _data_path = "/tmp/test_namespace_XXXXXX";
+        make_temp_dir_or_die(&_data_path);
+        common::RocksdbStorePtr store;
+        auto status = common::RocksdbStore::open(_data_path.c_str(), &store);
+        ASSERT_TRUE(status.ok()) << status.error_str();
+        _store = store;
+    }
+
+    void TearDown() override {
+        _store->close();
+        std::filesystem::remove_all(_data_path);
+    }
+
+private:
+    std::string _data_path;
+    common::StorePtr _store;
+};
+
+TEST_F(TestNamespace, create) {
+    Namespace ns(_store);
     UUID a = UUID::from_str_or_die("00000000-0000-0000-0000-000000000001");
     UUID b = UUID::from_str_or_die("00000000-0000-0000-0000-000000000002");
     UUID c = UUID::from_str_or_die("00000000-0000-0000-0000-000000000003");
@@ -25,6 +48,9 @@ TEST(Namespace, create) {
 
     std::list<DirEntry> entries;
     ns.list(ns.root(), &entries);
+    for (const auto& entry : entries) {
+        std::cout << entry.name << " " << entry.inode << std::endl;
+    }
     ASSERT_EQ(entries.size(), 3);
 
     ns.create(a, "d", FileType::kDirectory, d);
@@ -47,8 +73,8 @@ TEST(Namespace, create) {
     ASSERT_EQ(entries.size(), 0);
 }
 
-TEST(Namespace, parse_path) {
-    Namespace ns;
+TEST_F(TestNamespace, parse_path) {
+    Namespace ns(_store);
     std::list<std::string_view> components;
     auto status = ns.parse_path("/a/b/c", &components);
     ASSERT_TRUE(status.ok());
@@ -119,7 +145,7 @@ TEST(Namespace, parse_path) {
     components.pop_front();
 }
 
-TEST(Namespace, lookup) {
+TEST_F(TestNamespace, lookup) {
     UUID a = UUID::from_str_or_die("00000000-0000-0000-0000-000000000001");
     UUID b = UUID::from_str_or_die("00000000-0000-0000-0000-000000000002");
     UUID c = UUID::from_str_or_die("00000000-0000-0000-0000-000000000003");
@@ -127,7 +153,7 @@ TEST(Namespace, lookup) {
     UUID e = UUID::from_str_or_die("00000000-0000-0000-0000-000000000005");
     UUID f = UUID::from_str_or_die("00000000-0000-0000-0000-000000000006");
 
-    Namespace ns;
+    Namespace ns(_store);
     ns.create(ns.root(), "a", FileType::kDirectory, a);
     ns.create(ns.root(), "b", FileType::kDirectory, b);
     ns.create(ns.root(), "c", FileType::kDirectory, c);
@@ -143,44 +169,44 @@ TEST(Namespace, lookup) {
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/a", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, a);
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/b", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, b);
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/c", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, c);
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/a/d", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, d);
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/a/e", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, e);
     ASSERT_EQ(file_type, FileType::kDirectory);
 
     status = ns.lookup("/a/f", &inode, &file_type);
-    ASSERT_TRUE(status.ok());
+    ASSERT_TRUE(status.ok()) << status.error_str();
     ASSERT_EQ(inode, f);
     ASSERT_EQ(file_type, FileType::kFile);
 
     status = ns.lookup("/a/g", &inode, &file_type);
-    ASSERT_FALSE(status.ok());
+    ASSERT_FALSE(status.ok()) << status.error_str();
 
     status = ns.lookup("/a/f/b", &inode, &file_type);
-    ASSERT_FALSE(status.ok());
+    ASSERT_FALSE(status.ok()) << status.error_str();
 }
 
-TEST(Namespace, lookup_and_list) {
-    Namespace ns;
+TEST_F(TestNamespace, lookup_and_list) {
+    Namespace ns(_store);
     UUID a = UUID::from_str_or_die("00000000-0000-0000-0000-000000000001");
     UUID b = UUID::from_str_or_die("00000000-0000-0000-0000-000000000002");
     UUID c = UUID::from_str_or_die("00000000-0000-0000-0000-000000000003");

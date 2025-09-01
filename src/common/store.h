@@ -8,6 +8,7 @@
 
 namespace pain::common {
 class Store;
+class TxnStore;
 using StorePtr = boost::intrusive_ptr<Store>;
 // Store is a key-value store like redis
 class Store {
@@ -28,6 +29,11 @@ public:
     virtual Status hlen(std::string_view key, size_t* len) = 0;
     virtual std::shared_ptr<Iterator> hgetall(std::string_view key) = 0;
     virtual bool hexists(std::string_view key, std::string_view field) = 0;
+
+    virtual Status close() = 0;
+    virtual Status recover(const char* from) = 0;
+    virtual Status check_point(const char* to, std::vector<std::string>* files) = 0;
+    virtual std::shared_ptr<TxnStore> begin_txn() = 0;
 
 private:
     std::atomic<int> _use_count;
