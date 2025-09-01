@@ -34,13 +34,19 @@ private:
     std::shared_ptr<opentelemetry::trace::Span> _span;
 };
 
-OpPtr decode(OpType op_type, IOBuf* buf, RsmPtr rsm);
+OpPtr decode(int32_t version, OpType op_type, IOBuf* buf, RsmPtr rsm);
 
 template <typename ContainerType, typename Request, typename Response>
 class ContainerOp : public Op {
 public:
     using OnFinish = std::move_only_function<void(Status)>;
-    ContainerOp(OpType type, RsmPtr rsm, Request request, Response* response = nullptr, OnFinish finish = nullptr) :
+    ContainerOp(int32_t version,
+                OpType type,
+                RsmPtr rsm,
+                Request request,
+                Response* response = nullptr,
+                OnFinish finish = nullptr) :
+        _version(version),
         _type(type),
         _rsm(rsm),
         _request(std::move(request)),
@@ -57,11 +63,12 @@ public:
 
     void apply() override {
         SPAN(span);
+        PLOG_DEBUG(("desc", "apply op")("type", _type)("version", _version));
         if (need_apply(_type)) {
             braft::Task task;
             IOBuf buf;
             OpPtr self(this);
-            pain::deva::encode(self, &buf);
+            pain::deva::encode(_version, self, &buf);
             task.data = &buf;
             task.done = new OpClosure(self, span);
             task.expected_term = -1;
@@ -69,14 +76,13 @@ public:
         } else {
             on_apply(0);
         }
-        PLOG_DEBUG(("desc", "apply op")("type", _type));
     }
 
     void on_apply(int64_t index) override {
         PLOG_DEBUG(("desc", "on apply op")("type", _type)("index", index));
         auto container = _rsm->container();
         auto c = static_cast<ContainerType*>(container.get());
-        auto status = c->process(&_request, _response, index);
+        auto status = c->process(_version, &_request, _response, index);
         on_finish(std::move(status));
     }
 
@@ -102,6 +108,7 @@ public:
     }
 
 protected:
+    int32_t _version;
     OpType _type;
     RsmPtr _rsm;
     Request _request;

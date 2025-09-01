@@ -5,10 +5,10 @@
 
 namespace pain::deva {
 
-void encode(OpPtr op, IOBuf* buf) {
+void encode(int32_t version, OpPtr op, IOBuf* buf) {
     OpMeta op_meta = {};
     static_assert(sizeof(op_meta) == 64, "OpMeta size must be 64byte"); // NOLINT(readability-magic-numbers)
-    op_meta.version = 1;
+    op_meta.version = version;
     op_meta.type = op->type();
     op_meta.timestamp = butil::gettimeofday_us();
     butil::IOBuf meta;
@@ -18,7 +18,7 @@ void encode(OpPtr op, IOBuf* buf) {
     buf->append(meta);
 }
 
-OpPtr decode(IOBuf* buf, std::move_only_function<OpPtr(OpType, IOBuf*)> decode) {
+OpPtr decode(IOBuf* buf, std::move_only_function<OpPtr(int32_t, OpType, IOBuf*)> decode) {
     OpMeta op_meta = {};
     static_assert(sizeof(op_meta) == 64, "OpMeta size must be 64byte"); // NOLINT(readability-magic-numbers)
     uint32_t meta_size = 0;
@@ -26,7 +26,7 @@ OpPtr decode(IOBuf* buf, std::move_only_function<OpPtr(OpType, IOBuf*)> decode) 
     meta_size = op_meta.size;
     butil::IOBuf meta;
     buf->cutn(&meta, meta_size);
-    auto op = decode(op_meta.type, &meta);
+    auto op = decode(op_meta.version, op_meta.type, buf);
     return op;
 }
 
