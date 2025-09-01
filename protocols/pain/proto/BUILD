@@ -2,6 +2,7 @@ proto_library(
     name = "pain_common_proto",
     srcs = ["common.proto"],
     strip_import_prefix = "/protocols",
+    visibility = ["//visibility:public"],
 )
 
 proto_library(

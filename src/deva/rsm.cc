@@ -10,6 +10,7 @@
 #include <gflags/gflags.h>       // DEFINE_*
 #include <pain/base/plog.h>
 #include <sys/types.h> // O_CREAT
+#include "common/rocksdb_store.h"
 #include "deva/container.h"
 #include "deva/container_op.h"
 #include "deva/deva.h"
@@ -177,7 +178,11 @@ RsmPtr default_rsm() {
     node_options.snapshot_uri = fmt::format("{}/{}/snapshot", prefix, group);
     node_options.disable_cli = FLAGS_rsm_disable_cli;
 
-    static RsmPtr s_rsm = new Rsm(addr, group, node_options, new Deva());
+    std::string rocksdb_path = fmt::format("{}/{}/db", prefix, group);
+    common::RocksdbStorePtr store;
+    auto status = common::RocksdbStore::open(rocksdb_path.c_str(), &store);
+    BOOST_ASSERT_MSG(status.ok(), "Fail to open rocksdb store");
+    static RsmPtr s_rsm = new Rsm(addr, group, node_options, new Deva(store));
     return s_rsm;
 }
 

@@ -2,7 +2,7 @@
 
 #include <rocksdb/options.h>
 #include "common/store.h"
-#include "common/txn.h"
+#include "common/txn_store.h"
 
 namespace rocksdb {
 class Transaction;
@@ -10,10 +10,10 @@ class Transaction;
 
 namespace pain::common {
 
-class RocksdbTxn : public Txn, public Store {
+class RocksdbTxnStore : public TxnStore {
 public:
-    RocksdbTxn(rocksdb::Transaction* txn);
-    ~RocksdbTxn() override;
+    RocksdbTxnStore(rocksdb::Transaction* txn);
+    ~RocksdbTxnStore() override;
 
     Status commit() override;
     Status rollback() override;

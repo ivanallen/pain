@@ -3,9 +3,9 @@
 #include <pain/base/types.h>
 #include <boost/intrusive_ptr.hpp>
 #include "pain/proto/deva_store.pb.h"
+#include "common/store.h"
 #include "deva/container.h"
 #include "deva/namespace.h"
-
 #define DEVA_ENTRY(name)                                                                                               \
     Status name([[maybe_unused]] const pain::proto::deva::store::name##Request* request,                               \
                 [[maybe_unused]] pain::proto::deva::store::name##Response* response,                                   \
@@ -22,6 +22,8 @@ class Deva;
 using DevaPtr = boost::intrusive_ptr<Deva>;
 class Deva : public Container {
 public:
+    Deva(common::StorePtr store) : _store(store), _namespace(store) {}
+
     DEVA_ENTRY(CreateFile);
     DEVA_ENTRY(CreateDir);
     DEVA_ENTRY(RemoveFile);
@@ -38,7 +40,8 @@ private:
     Status create(const std::string& path, const UUID& id, FileType type);
 
 private:
-    std::atomic<int> _use_count = {};
+    std::atomic<int> _use_count;
+    common::StorePtr _store;
     Namespace _namespace;
     std::unordered_map<UUID, proto::FileInfo> _file_infos;
 

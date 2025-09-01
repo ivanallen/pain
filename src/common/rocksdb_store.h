@@ -1,6 +1,6 @@
 #pragma once
 #include <rocksdb/options.h>
-#include "common/rocksdb_txn.h"
+#include "common/rocksdb_txn_store.h"
 #include "common/store.h"
 
 namespace rocksdb {
@@ -16,9 +16,9 @@ public:
     ~RocksdbStore() override;
 
     static Status open(const char* data_path, RocksdbStorePtr* store);
-    Status close();
-    Status recover(const char* from);
-    Status check_point(const char* to, std::vector<std::string>* files);
+    Status close() override;
+    Status recover(const char* from) override;
+    Status check_point(const char* to, std::vector<std::string>* files) override;
 
     Status hset(std::string_view key, std::string_view field, std::string_view value) override;
     Status hget(std::string_view key, std::string_view field, std::string* value) override;
@@ -27,7 +27,7 @@ public:
     std::shared_ptr<Iterator> hgetall(std::string_view key) override;
     bool hexists(std::string_view key, std::string_view field) override;
 
-    std::shared_ptr<RocksdbTxn> begin_txn();
+    std::shared_ptr<TxnStore> begin_txn() override;
 
 private:
     std::string make_key(std::string_view key, std::string_view field) const;
