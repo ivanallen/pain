@@ -90,8 +90,8 @@ void Rsm::on_apply(braft::Iterator& iter) {
         } else {
             butil::IOBuf saved_log = iter.data();
             // clang-format off
-            auto op = decode(&saved_log, [rsm = RsmPtr(this)](OpType op_type, IOBuf* buf) {
-                return decode(op_type, buf, rsm);
+            auto op = decode(&saved_log, [rsm = RsmPtr(this)](int32_t version, OpType op_type, IOBuf* buf) {
+                return decode(version, op_type, buf, rsm);
             });
             // clang-format on
             op->on_apply(iter.index());

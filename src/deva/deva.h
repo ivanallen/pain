@@ -7,13 +7,15 @@
 #include "deva/container.h"
 #include "deva/namespace.h"
 #define DEVA_ENTRY(name)                                                                                               \
-    Status name([[maybe_unused]] const pain::proto::deva::store::name##Request* request,                               \
+    Status name([[maybe_unused]] int32_t version,                                                                      \
+                [[maybe_unused]] const pain::proto::deva::store::name##Request* request,                               \
                 [[maybe_unused]] pain::proto::deva::store::name##Response* response,                                   \
                 [[maybe_unused]] int64_t index);                                                                       \
-    Status process([[maybe_unused]] const pain::proto::deva::store::name##Request* request,                            \
+    Status process([[maybe_unused]] int32_t version,                                                                   \
+                   [[maybe_unused]] const pain::proto::deva::store::name##Request* request,                            \
                    [[maybe_unused]] pain::proto::deva::store::name##Response* response,                                \
                    [[maybe_unused]] int64_t index) {                                                                   \
-        return name(request, response, index);                                                                         \
+        return name(version, request, response, index);                                                                \
     }
 
 namespace pain::deva {

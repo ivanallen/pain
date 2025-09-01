@@ -37,7 +37,7 @@ DEVA_SERVICE_METHOD(OpenFile) {
         create_request.set_atime(butil::gettimeofday_us());
         create_request.set_mtime(butil::gettimeofday_us());
         create_request.set_ctime(butil::gettimeofday_us());
-        auto status = bridge<Deva, OpType::kCreateFile>(_rsm, create_request, &create_response).get();
+        auto status = bridge<Deva, OpType::kCreateFile>(1, _rsm, create_request, &create_response).get();
         if (!status.ok()) {
             PLOG_ERROR(("desc", "failed to create file")("error", status.error_str()));
             response->mutable_header()->set_status(status.error_code());
@@ -81,7 +81,7 @@ DEVA_SERVICE_METHOD(Mkdir) {
     create_request.set_atime(butil::gettimeofday_us());
     create_request.set_mtime(butil::gettimeofday_us());
     create_request.set_ctime(butil::gettimeofday_us());
-    auto status = bridge<Deva, OpType::kCreateDir>(_rsm, create_request, &create_response).get();
+    auto status = bridge<Deva, OpType::kCreateDir>(1, _rsm, create_request, &create_response).get();
     if (!status.ok()) {
         PLOG_ERROR(("desc", "failed to create file")("error", status.error_str()));
         response->mutable_header()->set_status(status.error_code());
@@ -100,7 +100,7 @@ DEVA_SERVICE_METHOD(ReadDir) {
     pain::proto::deva::store::ReadDirRequest read_dir_request;
     pain::proto::deva::store::ReadDirResponse read_dir_response;
     read_dir_request.set_path(path);
-    auto status = bridge<Deva, OpType::kReadDir>(_rsm, read_dir_request, &read_dir_response).get();
+    auto status = bridge<Deva, OpType::kReadDir>(1, _rsm, read_dir_request, &read_dir_response).get();
     if (!status.ok()) {
         PLOG_ERROR(("desc", "failed to read dir")("error", status.error_str()));
         response->mutable_header()->set_status(status.error_code());

@@ -4,7 +4,8 @@
 #include "deva/macro.h"
 
 #define DEVA_METHOD(name)                                                                                              \
-    Status Deva::name([[maybe_unused]] const pain::proto::deva::store::name##Request* request,                         \
+    Status Deva::name([[maybe_unused]] int32_t version,                                                                \
+                      [[maybe_unused]] const pain::proto::deva::store::name##Request* request,                         \
                       [[maybe_unused]] pain::proto::deva::store::name##Response* response,                             \
                       [[maybe_unused]] int64_t index)
 
@@ -39,7 +40,7 @@ Status Deva::create(const std::string& path, const UUID& id, FileType type) {
 
 DEVA_METHOD(CreateFile) {
     SPAN(span);
-    PLOG_DEBUG(("desc", "create_file")("index", index)("request", request->DebugString()));
+    PLOG_DEBUG(("desc", "create_file")("version", version)("index", index)("request", request->DebugString()));
     auto& path = request->path();
     auto& file_id = request->file_id();
     UUID file_uuid(file_id.high(), file_id.low());
@@ -64,7 +65,7 @@ DEVA_METHOD(CreateFile) {
 
 DEVA_METHOD(CreateDir) {
     SPAN(span);
-    PLOG_DEBUG(("desc", "create_dir")("index", index)("request", request->DebugString()));
+    PLOG_DEBUG(("desc", "create_dir")("version", version)("index", index)("request", request->DebugString()));
     auto& path = request->path();
     auto& dir_id = request->dir_id();
     UUID dir_uuid(dir_id.high(), dir_id.low());
@@ -89,7 +90,7 @@ DEVA_METHOD(CreateDir) {
 
 DEVA_METHOD(ReadDir) {
     SPAN(span);
-    PLOG_DEBUG(("desc", "read_dir")("index", index)("request", request->DebugString()));
+    PLOG_DEBUG(("desc", "read_dir")("version", version)("index", index)("request", request->DebugString()));
     auto& path = request->path();
     UUID parent_dir_uuid;
     FileType file_type = FileType::kNone;
@@ -114,37 +115,37 @@ DEVA_METHOD(ReadDir) {
 
 DEVA_METHOD(RemoveFile) {
     SPAN(span);
-    PLOG_INFO(("desc", "remove_file")("index", index));
+    PLOG_INFO(("desc", "remove_file")("version", version)("index", index));
     return Status::OK();
 }
 
 DEVA_METHOD(SealFile) {
     SPAN(span);
-    PLOG_INFO(("desc", "seal_file")("index", index));
+    PLOG_INFO(("desc", "seal_file")("version", version)("index", index));
     return Status::OK();
 }
 
 DEVA_METHOD(CreateChunk) {
     SPAN(span);
-    PLOG_INFO(("desc", "remove")("index", index));
+    PLOG_INFO(("desc", "remove")("version", version)("index", index));
     return Status::OK();
 }
 
 DEVA_METHOD(CheckInChunk) {
     SPAN(span);
-    PLOG_INFO(("desc", "seal")("index", index));
+    PLOG_INFO(("desc", "seal")("version", version)("index", index));
     return Status::OK();
 }
 
 DEVA_METHOD(SealChunk) {
     SPAN(span);
-    PLOG_INFO(("desc", "create_chunk")("index", index));
+    PLOG_INFO(("desc", "create_chunk")("version", version)("index", index));
     return Status::OK();
 }
 
 DEVA_METHOD(SealAndNewChunk) {
     SPAN(span);
-    PLOG_INFO(("desc", "remove_chunk")("index", index));
+    PLOG_INFO(("desc", "remove_chunk")("version", version)("index", index));
     return Status::OK();
 }
 

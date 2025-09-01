@@ -8,23 +8,24 @@
 namespace pain::deva {
 
 template <OpType OpType, typename Request, typename Response>
-OpPtr create(RsmPtr rsm) {
+OpPtr create(int32_t version, RsmPtr rsm) {
     Request request;
     OpPtr op = nullptr;
 
     if constexpr (OpType < OpType::kMaxDevaOp) {
-        op = new ContainerOp<Deva, Request, Response>(OpType, rsm, request, nullptr);
+        op = new ContainerOp<Deva, Request, Response>(version, OpType, rsm, request, nullptr);
     }
     return op;
 }
 
 #define BRANCH(name)                                                                                                   \
     case OpType::k##name:                                                                                              \
-        return create<OpType::k##name, proto::deva::store::name##Request, proto::deva::store::name##Response>(rsm);    \
+        return create<OpType::k##name, proto::deva::store::name##Request, proto::deva::store::name##Response>(version, \
+                                                                                                              rsm);    \
         break;
 
-OpPtr decode(OpType op_type, IOBuf* buf, RsmPtr rsm) {
-    auto op = [](OpType op_type, IOBuf* buf, RsmPtr rsm) -> OpPtr {
+OpPtr decode(int32_t version, OpType op_type, IOBuf* buf, RsmPtr rsm) {
+    auto op = [](int32_t version, OpType op_type, RsmPtr rsm) -> OpPtr {
         switch (op_type) {
             BRANCH(CreateFile)
             BRANCH(CreateDir)
@@ -39,7 +40,7 @@ OpPtr decode(OpType op_type, IOBuf* buf, RsmPtr rsm) {
             BOOST_ASSERT_MSG(false, fmt::format("unknown op type: {}", op_type).c_str());
         }
         return nullptr;
-    }(op_type, buf, rsm);
+    }(version, op_type, rsm);
     op->decode(buf);
     return op;
 }
