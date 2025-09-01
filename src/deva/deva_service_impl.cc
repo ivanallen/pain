@@ -15,7 +15,7 @@
 
 namespace pain::deva {
 
-DevaServiceImpl::DevaServiceImpl() {}
+DevaServiceImpl::DevaServiceImpl(RsmPtr rsm) : _rsm(rsm) {}
 
 DEVA_SERVICE_METHOD(OpenFile) {
     brpc::ClosureGuard done_guard(done);
@@ -37,7 +37,7 @@ DEVA_SERVICE_METHOD(OpenFile) {
         create_request.set_atime(butil::gettimeofday_us());
         create_request.set_mtime(butil::gettimeofday_us());
         create_request.set_ctime(butil::gettimeofday_us());
-        auto status = bridge<Deva, OpType::kCreateFile>(create_request, &create_response).get();
+        auto status = bridge<Deva, OpType::kCreateFile>(_rsm, create_request, &create_response).get();
         if (!status.ok()) {
             PLOG_ERROR(("desc", "failed to create file")("error", status.error_str()));
             response->mutable_header()->set_status(status.error_code());
@@ -81,13 +81,16 @@ DEVA_SERVICE_METHOD(Mkdir) {
     create_request.set_atime(butil::gettimeofday_us());
     create_request.set_mtime(butil::gettimeofday_us());
     create_request.set_ctime(butil::gettimeofday_us());
-    auto status = bridge<Deva, OpType::kCreateDir>(create_request, &create_response).get();
+    auto status = bridge<Deva, OpType::kCreateDir>(_rsm, create_request, &create_response).get();
     if (!status.ok()) {
         PLOG_ERROR(("desc", "failed to create file")("error", status.error_str()));
         response->mutable_header()->set_status(status.error_code());
         response->mutable_header()->set_message(status.error_str());
         return;
     }
+    response->mutable_file_info()->Swap(create_response.mutable_file_info());
+    response->mutable_header()->set_status(0);
+    response->mutable_header()->set_message("ok");
 }
 
 DEVA_SERVICE_METHOD(SealFile) {

@@ -38,7 +38,7 @@ public:
     }
 
     Status start() {
-        auto deva_service_impl = new pain::deva::DevaServiceImpl;
+        auto deva_service_impl = new pain::deva::DevaServiceImpl(_rsm);
         if (_server.AddService(deva_service_impl, brpc::SERVER_OWNS_SERVICE) != 0) {
             return Status(EINVAL, "Fail to add service");
         }
