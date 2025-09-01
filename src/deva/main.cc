@@ -30,7 +30,8 @@ int main(int argc, char* argv[]) {
 
     brpc::Server server;
 
-    pain::deva::DevaServiceImpl deva_service_impl;
+    auto rsm = pain::deva::default_rsm();
+    pain::deva::DevaServiceImpl deva_service_impl(rsm);
     pain::init_tracer("deva");
     auto stop_tracer = pain::make_scope_exit([]() {
         pain::cleanup_tracer();
@@ -53,7 +54,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    auto rsm = pain::deva::default_rsm();
     rsm->start();
     server.RunUntilAskedToQuit();
     rsm->shutdown();

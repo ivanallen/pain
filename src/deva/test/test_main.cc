@@ -20,5 +20,11 @@ int main(int argc, char** argv) {
     };
 
     static auto s_flush_log = pain::make_logger(logger_options);
+
+    pain::init_tracer("test_deva");
+    auto stop_tracer = pain::make_scope_exit([]() {
+        pain::cleanup_tracer();
+    });
+
     return RUN_ALL_TESTS();
 }

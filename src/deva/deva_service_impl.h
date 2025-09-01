@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pain/proto/deva.pb.h"
+#include "deva/rsm.h"
 
 #define DEVA_SERVICE_METHOD(name)                                                                                      \
     void name(::google::protobuf::RpcController* controller,                                                           \
@@ -12,7 +13,7 @@ namespace pain::deva {
 
 class DevaServiceImpl : public pain::proto::deva::DevaService {
 public:
-    DevaServiceImpl();
+    DevaServiceImpl(RsmPtr rsm);
     ~DevaServiceImpl() override = default;
     DEVA_SERVICE_METHOD(OpenFile);
     DEVA_SERVICE_METHOD(CloseFile);
@@ -23,6 +24,9 @@ public:
     DEVA_SERVICE_METHOD(CheckInChunk);
     DEVA_SERVICE_METHOD(SealChunk);
     DEVA_SERVICE_METHOD(SealAndNewChunk);
+
+private:
+    RsmPtr _rsm;
 };
 
 } // namespace pain::deva
