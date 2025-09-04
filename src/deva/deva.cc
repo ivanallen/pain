@@ -150,14 +150,11 @@ DEVA_METHOD(SealAndNewChunk) {
 }
 
 Status Deva::save_snapshot(std::string_view path, std::vector<std::string>* files) {
-    std::ignore = path;
-    std::ignore = files;
-    return Status::OK();
+    return _store->check_point(path.data(), files);
 }
 
 Status Deva::load_snapshot(std::string_view path) {
-    std::ignore = path;
-    return Status::OK();
+    return _store->recover(path.data());
 }
 
 } // namespace pain::deva

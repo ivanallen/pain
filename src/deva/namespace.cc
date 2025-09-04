@@ -156,7 +156,7 @@ void Namespace::list(const UUID& parent, std::list<DirEntry>* entries) const {
 Status Namespace::parse_path(const char* path, std::list<std::string_view>* components) const {
     const char* p = path;
     if (*p != '/') {
-        return Status(EINVAL, "Invalid path");
+        return Status(EINVAL, fmt::format("Invalid path:{}", path));
     }
 
     while (*p != '\0') {

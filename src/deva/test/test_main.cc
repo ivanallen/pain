@@ -26,5 +26,7 @@ int main(int argc, char** argv) {
         pain::cleanup_tracer();
     });
 
-    return RUN_ALL_TESTS();
+    auto ret = RUN_ALL_TESTS();
+    PLOG_INFO(("desc", "test finished")("ret", ret));
+    return ret;
 }

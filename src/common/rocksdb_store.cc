@@ -119,14 +119,23 @@ Status RocksdbStore::check_point(const char* to, std::vector<std::string>* files
     }
     std::unique_ptr<rocksdb::Checkpoint> cpt_guard(cpt);
 
+    // remove to path
+    auto fs = braft::default_file_system();
+    if (fs->directory_exists(to)) {
+        if (!fs->delete_file(to, true)) {
+            PLOG_ERROR(("desc", "delete cpt dir failed") //
+                       ("path", to));
+        }
+    }
+
     status = cpt->CreateCheckpoint(to);
     if (!status.ok()) {
         PLOG_ERROR(("desc", "create checkpoint failed") //
+                   ("path", to)                         //
                    ("error", status.ToString()));
         return convert_to_pain_status(status);
     }
 
-    auto fs = braft::default_file_system();
     std::unique_ptr<braft::DirReader> dir_reader(fs->directory_reader(to));
 
     if (dir_reader == nullptr) {
@@ -143,7 +152,7 @@ Status RocksdbStore::check_point(const char* to, std::vector<std::string>* files
 
     std::vector<std::string> snapshot_files;
     while (dir_reader->next()) {
-        auto file_name = fmt::format("cpt/{}", dir_reader->name());
+        auto file_name = fmt::format("{}", dir_reader->name());
         PLOG_INFO(("desc", "snapshot add file") //
                   ("file", file_name));
         snapshot_files.push_back(file_name);
@@ -225,6 +234,10 @@ Status RocksdbStore::recover(const char* from) {
                    ("path", bak_path));
     }
 
+    // delete old db
+    delete _txn_db;
+    _txn_db = nullptr;
+    _db = nullptr;
     open_or_die();
 
     return Status::OK();
