@@ -1,6 +1,7 @@
 #include "deva/namespace.h"
 #include <pain/base/plog.h>
 #include <pain/base/scope_exit.h>
+#include "common/txn_manager.h"
 #include "common/txn_store.h"
 
 namespace pain::deva {
@@ -14,8 +15,10 @@ Status Namespace::load() {
 }
 
 Status Namespace::create(const UUID& parent, const std::string& name, FileType type, const UUID& inode) {
-    auto txn = _store->begin_txn();
-    if (!txn) {
+    auto in_txn = common::TxnManager::instance().in_txn();
+    auto this_txn = _store->begin_txn();
+    auto txn = in_txn ? common::TxnManager::instance().get_txn_store() : this_txn.get();
+    if (txn == nullptr) {
         return Status(EIO, "Failed to begin transaction");
     }
     auto rollback = make_scope_exit([&txn]() {
@@ -24,6 +27,9 @@ Status Namespace::create(const UUID& parent, const std::string& name, FileType t
             PLOG_ERROR(("desc", "Failed to rollback")("status", status));
         }
     });
+    if (in_txn) {
+        rollback.release();
+    }
     // find parent
     std::string dentries_str;
     proto::DirEntries dentries;
@@ -75,7 +81,14 @@ Status Namespace::create(const UUID& parent, const std::string& name, FileType t
     if (!file_info.SerializeToString(&file_info_str)) {
         return Status(EBADMSG, "Failed to serialize file info");
     }
-    txn->hset(_inode_key, inode.str(), file_info_str);
+    status = txn->hset(_inode_key, inode.str(), file_info_str);
+    if (!status.ok()) {
+        return status;
+    }
+
+    if (in_txn) {
+        return Status::OK();
+    }
 
     status = txn->commit();
     if (!status.ok()) {
@@ -86,17 +99,22 @@ Status Namespace::create(const UUID& parent, const std::string& name, FileType t
 }
 
 Status Namespace::remove(const UUID& parent, const std::string& name) {
-    // find parent
-    auto txn = _store->begin_txn();
-    if (!txn) {
+    auto in_txn = common::TxnManager::instance().in_txn();
+    auto this_txn = _store->begin_txn();
+    auto txn = in_txn ? common::TxnManager::instance().get_txn_store() : this_txn.get();
+    if (txn == nullptr) {
         return Status(EIO, "Failed to begin transaction");
     }
+    // find parent
     auto rollback = make_scope_exit([&txn]() {
         auto status = txn->rollback();
         if (!status.ok()) {
             PLOG_ERROR(("desc", "Failed to rollback")("status", status));
         }
     });
+    if (in_txn) {
+        rollback.release();
+    }
     // get dentries
     std::string dentries_str;
     auto status = txn->hget(_dentry_key, parent.str(), &dentries_str);
@@ -122,10 +140,20 @@ Status Namespace::remove(const UUID& parent, const std::string& name) {
     if (!dentries.SerializeToString(&dentries_str)) {
         return Status(EBADMSG, "Failed to serialize dentries");
     }
-    txn->hset(_dentry_key, parent.str(), dentries_str);
+    status = txn->hset(_dentry_key, parent.str(), dentries_str);
+    if (!status.ok()) {
+        return status;
+    }
 
     // remove file info
-    txn->hdel(_inode_key, file_id.str());
+    status = txn->hdel(_inode_key, file_id.str());
+    if (!status.ok()) {
+        return status;
+    }
+
+    if (in_txn) {
+        return Status::OK();
+    }
 
     status = txn->commit();
     if (!status.ok()) {
@@ -138,17 +166,33 @@ Status Namespace::remove(const UUID& parent, const std::string& name) {
 void Namespace::list(const UUID& parent, std::list<DirEntry>* entries) const {
     entries->clear();
     std::string dentries_str;
-    auto status = _store->hget(_dentry_key, parent.str(), &dentries_str);
+    auto in_txn = common::TxnManager::instance().in_txn();
+    auto this_txn = _store->begin_txn();
+    auto txn = in_txn ? common::TxnManager::instance().get_txn_store() : this_txn.get();
+    if (txn == nullptr) {
+        return;
+    }
+    auto status = txn->hget(_dentry_key, parent.str(), &dentries_str);
     if (!status.ok()) {
+        PLOG_ERROR(("desc", "Failed to get dentries")("status", status));
         return;
     }
     proto::DirEntries dentries;
     if (!dentries.ParseFromString(dentries_str)) {
+        PLOG_ERROR(("desc", "Failed to parse dentries")("status", status));
         return;
     }
     for (const auto& dentry : dentries.entries()) {
         entries->emplace_back(
             UUID(dentry.file_id().high(), dentry.file_id().low()), dentry.name(), static_cast<FileType>(dentry.type()));
+    }
+    if (in_txn) {
+        return;
+    }
+
+    status = txn->commit();
+    if (!status.ok()) {
+        PLOG_ERROR(("desc", "Failed to commit")("status", status));
     }
 }
 
@@ -184,9 +228,16 @@ Status Namespace::lookup(const char* path, UUID* inode, FileType* file_type) con
     UUID parent = _root;
     *file_type = FileType::kDirectory;
 
+    auto in_txn = common::TxnManager::instance().in_txn();
+    auto this_txn = _store->begin_txn();
+    auto txn = in_txn ? common::TxnManager::instance().get_txn_store() : this_txn.get();
+    if (txn == nullptr) {
+        return Status(EIO, "Failed to begin transaction");
+    }
+
     for (const auto& component : components) {
         std::string dentries_str;
-        auto status = _store->hget(_dentry_key, parent.str(), &dentries_str);
+        auto status = txn->hget(_dentry_key, parent.str(), &dentries_str);
         if (!status.ok()) {
             return status;
         }
@@ -208,7 +259,15 @@ Status Namespace::lookup(const char* path, UUID* inode, FileType* file_type) con
         *file_type = static_cast<FileType>(entry->type());
     }
     *inode = parent;
-    return Status::OK();
+    if (in_txn) {
+        return Status::OK();
+    }
+
+    status = txn->commit();
+    if (!status.ok()) {
+        PLOG_ERROR(("desc", "Failed to commit")("status", status));
+    }
+    return status;
 }
 
 } // namespace pain::deva
