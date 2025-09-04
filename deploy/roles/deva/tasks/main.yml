@@ -93,6 +93,6 @@
       shell: 
         chdir: ./deployment/deva/{{ listen_port }}
         cmd: >
-          start-stop-daemon --stop --pidfile deva.pid
+          start-stop-daemon --stop --pidfile deva.pid --remove-pidfile || true
     - name: remove working dir
       file: path=./deployment/deva/{{ listen_port }} state=absent
