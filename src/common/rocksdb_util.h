@@ -11,37 +11,37 @@ inline Status convert_to_pain_status(const rocksdb::Status& status) {
     case rocksdb::Status::Code::kOk:
         return Status::OK();
     case rocksdb::Status::Code::kNotFound:
-        return Status(ENOENT, fmt::format("NotFound:{}", status.ToString()));
+        return Status(ENOENT, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kCorruption:
-        return Status(EBADMSG, fmt::format("Corruption:{}", status.ToString()));
+        return Status(EBADMSG, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kNotSupported:
-        return Status(ENOTSUP, fmt::format("NotSupported:{}", status.ToString()));
+        return Status(ENOTSUP, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kInvalidArgument:
-        return Status(EINVAL, fmt::format("InvalidArgument:{}", status.ToString()));
+        return Status(EINVAL, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kIOError:
-        return Status(EIO, fmt::format("IOError:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kMergeInProgress:
-        return Status(EBUSY, fmt::format("MergeInProgress:{}", status.ToString()));
+        return Status(EBUSY, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kIncomplete:
-        return Status(EIO, fmt::format("Incomplete:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kShutdownInProgress:
-        return Status(EIO, fmt::format("ShutdownInProgress:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kTimedOut:
-        return Status(ETIMEDOUT, fmt::format("TimedOut:{}", status.ToString()));
+        return Status(ETIMEDOUT, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kAborted:
-        return Status(EIO, fmt::format("Aborted:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kBusy:
-        return Status(EBUSY, fmt::format("Busy:{}", status.ToString()));
+        return Status(EBUSY, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kExpired:
-        return Status(EKEYEXPIRED, fmt::format("Expired:{}", status.ToString()));
+        return Status(EKEYEXPIRED, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kTryAgain:
-        return Status(EAGAIN, fmt::format("TryAgain:{}", status.ToString()));
+        return Status(EAGAIN, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kCompactionTooLarge:
-        return Status(EIO, fmt::format("CompactionTooLarge:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     case rocksdb::Status::Code::kColumnFamilyDropped:
-        return Status(EIO, fmt::format("ColumnFamilyDropped:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     default:
-        return Status(EIO, fmt::format("Unknown:{}", status.ToString()));
+        return Status(EIO, fmt::format("{}", status.ToString()));
     }
 }
 

@@ -22,7 +22,7 @@ public:
             BOOST_ASSERT_MSG(false, "Fail to parse address");
         }
 
-        node_options.election_timeout_ms = 5000; // NOLINT
+        node_options.election_timeout_ms = 1000; // NOLINT
         node_options.node_owns_fsm = false;
         node_options.snapshot_interval_s = 30; // NOLINT
         std::string prefix = fmt::format("local://{}", data_path);
@@ -31,6 +31,8 @@ public:
         node_options.snapshot_uri = fmt::format("{}/{}/snapshot", prefix, group);
 
         std::string rocksdb_path = fmt::format("{}/{}/db", data_path, group);
+        // remove rocksdb path
+        std::filesystem::remove_all(rocksdb_path);
         common::RocksdbStorePtr store;
         auto status = common::RocksdbStore::open(rocksdb_path.c_str(), &store);
         BOOST_ASSERT_MSG(status.ok(), "Fail to open rocksdb store");

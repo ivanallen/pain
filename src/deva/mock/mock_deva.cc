@@ -1,4 +1,5 @@
 #include "deva/mock/mock_deva.h"
+#include <braft/cli.h>
 #include <braft/route_table.h>
 #include <pain/base/path.h>
 #include <pain/base/plog.h>
@@ -11,7 +12,8 @@ namespace pain::deva::mock {
 MockDeva::MockDeva() :
     _group("test_group"),
     _data_path("/tmp/deva_mock_data_XXXXXX"),
-    _node_addrs({"127.0.0.1:8200", "127.0.0.1:8201", "127.0.0.1:8202"}) {
+    _node_addrs({"127.0.0.1:8200", "127.0.0.1:8201", "127.0.0.1:8202"}),
+    _do_not_remove_data_path(false) {
     _node_conf = fmt::format("{}", fmt::join(_node_addrs, ","));
     make_temp_dir_or_die(&_data_path);
     PLOG_INFO(("data_path", _data_path));
@@ -29,10 +31,13 @@ MockDeva::MockDeva() :
 
 MockDeva::~MockDeva() {
     stop();
-    std::filesystem::remove_all(_data_path);
+    if (!_do_not_remove_data_path) {
+        std::filesystem::remove_all(_data_path);
+    }
 }
 
 Status MockDeva::start() {
+    PLOG_INFO(("desc", "start")("node_count", _deva_machine.size()));
     for (size_t i = 0; i < _deva_machine.size(); i++) {
         auto status = start(i);
         if (!status.ok()) {
@@ -43,6 +48,7 @@ Status MockDeva::start() {
 }
 
 Status MockDeva::start(int index) {
+    PLOG_INFO(("desc", "start")("index", index));
     _deva_machine[index] = std::make_unique<DevaMachine>(
         _data_paths[index].c_str(), _group.c_str(), _node_addrs[index].c_str(), _node_conf.c_str());
     return _deva_machine[index]->start();
@@ -50,18 +56,21 @@ Status MockDeva::start(int index) {
 
 void MockDeva::stop(int index) {
     if (_deva_machine[index]) {
+        PLOG_INFO(("desc", "stop")("index", index));
         _deva_machine[index]->stop();
         _deva_machine[index].reset();
     }
 }
 
 void MockDeva::stop() {
+    PLOG_INFO(("desc", "stop"));
     for (size_t i = 0; i < _deva_machine.size(); i++) {
         stop(i);
     }
 }
 
 Status MockDeva::wait_for_leader(std::string* addr, int timeout_ms) {
+    PLOG_INFO(("desc", "wait_for_leader")("timeout_ms", timeout_ms));
     constexpr int sleep_interval_ms = 500;
     for (int i = 0; i < timeout_ms / sleep_interval_ms; i++) {
         auto status = braft::rtb::refresh_leader(_group, sleep_interval_ms);
@@ -79,6 +88,22 @@ Status MockDeva::wait_for_leader(std::string* addr, int timeout_ms) {
         return Status::OK();
     }
     return Status(ENODEV, "No leader");
+}
+
+Status MockDeva::snapshot(int index) {
+    PLOG_INFO(("desc", "snapshot")("index", index));
+    return braft::cli::snapshot(_group, _node_addrs[index], braft::cli::CliOptions());
+}
+
+Status MockDeva::snapshot() {
+    PLOG_INFO(("desc", "snapshot"));
+    for (size_t i = 0; i < _deva_machine.size(); i++) {
+        auto status = snapshot(i);
+        if (!status.ok()) {
+            return status;
+        }
+    }
+    return Status::OK();
 }
 
 } // namespace pain::deva::mock

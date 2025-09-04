@@ -29,6 +29,13 @@ public:
         return _data_paths[index];
     }
 
+    Status snapshot(int index);
+    Status snapshot();
+
+    void do_not_remove_data_path() {
+        _do_not_remove_data_path = true;
+    }
+
 private:
     std::string _group;
     std::string _node_conf;
@@ -36,6 +43,7 @@ private:
     std::vector<std::string> _data_paths;
     std::vector<std::string> _node_addrs;
     std::vector<std::unique_ptr<DevaMachine>> _deva_machine;
+    bool _do_not_remove_data_path = false;
 };
 
 } // namespace pain::deva::mock

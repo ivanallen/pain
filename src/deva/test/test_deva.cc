@@ -32,6 +32,12 @@ public:
             _mock_deva.group().c_str(), &pain::proto::deva::DevaService::ReadDir, &request, response);
     }
 
+    void TearDown() override {
+        if (::testing::Test::HasFailure()) {
+            _mock_deva.do_not_remove_data_path();
+        }
+    }
+
 protected:
     pain::deva::mock::MockDeva _mock_deva;
 };
@@ -151,6 +157,49 @@ TEST_F(TestDeva, ReadDir) {
         EXPECT_EQ(readdir_response.entries(i + 10).name(), fmt::format("test_dir_{}", i));
         EXPECT_EQ(readdir_response.entries(i + 10).type(), pain::proto::FileType::FILE_TYPE_DIRECTORY);
     }
+}
+
+TEST_F(TestDeva, Snapshot) {
+    _mock_deva.start();
+    SCOPE_EXIT {
+        _mock_deva.stop();
+    };
+    std::string leader;
+    auto status = _mock_deva.wait_for_leader(&leader);
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "leader: " << leader << std::endl;
+
+    pain::proto::deva::MkdirResponse mkdir_response;
+    status = mkdir("/test", &mkdir_response);
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "mkdir response: " << mkdir_response.DebugString() << std::endl;
+
+    pain::proto::deva::OpenFileResponse response;
+    status = open("/test/test.txt", pain::proto::deva::OpenFlag::OPEN_CREATE, &response);
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "response: " << response.DebugString() << std::endl;
+
+    status = _mock_deva.snapshot();
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "snapshot response: " << status.error_str() << "(" << status.error_code() << ")" << std::endl;
+
+    // restart the deva
+    _mock_deva.stop();
+    status = _mock_deva.start();
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "start response: " << status.error_str() << "(" << status.error_code() << ")" << std::endl;
+
+    status = _mock_deva.wait_for_leader(&leader);
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "leader: " << leader << std::endl;
+
+    pain::proto::deva::ReadDirResponse readdir_response;
+    status = readdir("/test", &readdir_response);
+    ASSERT_TRUE(status.ok()) << status.error_str() << "(" << status.error_code() << ")";
+    std::cout << "readdir response: " << readdir_response.DebugString() << std::endl;
+    ASSERT_EQ(readdir_response.entries_size(), 1);
+    EXPECT_EQ(readdir_response.entries(0).name(), "test.txt");
+    EXPECT_EQ(readdir_response.entries(0).type(), pain::proto::FileType::FILE_TYPE_FILE);
 }
 
 } // namespace

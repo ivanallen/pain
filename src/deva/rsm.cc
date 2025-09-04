@@ -39,10 +39,16 @@ Rsm::Rsm(const butil::EndPoint& address,
     _node_options.fsm = this;
 }
 Rsm::~Rsm() {
+    PLOG_INFO(("desc", "destructor rsm") //
+              ("group", _group)          //
+              ("address", butil::endpoint2str(_address).c_str()));
     delete _node;
 }
 
 int Rsm::start() {
+    PLOG_INFO(("desc", "start rsm") //
+              ("group", _group)     //
+              ("address", butil::endpoint2str(_address).c_str()));
     braft::Node* node = new braft::Node(_group, braft::PeerId(_address));
     if (node->init(_node_options) != 0) {
         LOG(ERROR) << "Fail to init raft node";
@@ -108,25 +114,46 @@ struct SnapshotArg {
 };
 
 void* Rsm::save_snapshot(void* arg) {
+    PLOG_INFO(("desc", "save_snapshot"));
     SnapshotArg* sa = (SnapshotArg*)arg;
     std::unique_ptr<SnapshotArg> arg_guard(sa);
     brpc::ClosureGuard done_guard(sa->done);
-    std::string snapshot_path = sa->writer->get_path() + "/data";
+    std::string snapshot_path = sa->writer->get_path();
+    std::vector<std::string> files;
+    auto status = sa->container->save_snapshot(snapshot_path, &files);
+    if (!status.ok()) {
+        sa->done->status() = status;
+        LOG(ERROR) << "Fail to save snapshot to " << snapshot_path;
+        return nullptr;
+    }
+    for (const auto& file : files) {
+        PLOG_INFO(("desc", "add_file to snapshot")("file", file));
+        sa->writer->add_file(file);
+    }
+    PLOG_INFO(("desc", "save_snapshot done"));
     return nullptr;
 }
 
 void Rsm::on_snapshot_save(braft::SnapshotWriter* writer, braft::Closure* done) {
+    PLOG_INFO(("desc", "on_snapshot_save"));
     SnapshotArg* arg = new SnapshotArg;
     arg->writer = writer;
     arg->done = done;
+    arg->container = _container;
     bthread_t tid = 0;
     bthread_start_urgent(&tid, nullptr, save_snapshot, arg);
 }
 
 // NOLINTNEXTLINE
 int Rsm::on_snapshot_load(braft::SnapshotReader* reader) {
-    std::ignore = reader;
+    PLOG_INFO(("desc", "on_snapshot_load"));
     CHECK(!is_leader()) << "Leader is not supposed to load snapshot";
+    auto path = reader->get_path();
+    auto status = _container->load_snapshot(path);
+    if (!status.ok()) {
+        PLOG_ERROR(("desc", "fail to load snapshot from ")("path", path)("error", status.error_str()));
+        return -1;
+    }
     return 0;
 }
 

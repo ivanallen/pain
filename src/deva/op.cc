@@ -1,4 +1,5 @@
 #include "deva/op.h"
+#include <pain/base/plog.h>
 #include <functional>
 #include "butil/iobuf.h"
 #include "butil/time.h"
@@ -21,11 +22,15 @@ void encode(int32_t version, OpPtr op, IOBuf* buf) {
 OpPtr decode(IOBuf* buf, std::move_only_function<OpPtr(int32_t, OpType, IOBuf*)> decode) {
     OpMeta op_meta = {};
     static_assert(sizeof(op_meta) == 64, "OpMeta size must be 64byte"); // NOLINT(readability-magic-numbers)
-    uint32_t meta_size = 0;
+    uint32_t op_size = 0;
     buf->cutn(&op_meta, sizeof(op_meta));
-    meta_size = op_meta.size;
-    butil::IOBuf meta;
-    buf->cutn(&meta, meta_size);
+    op_size = op_meta.size;
+    if (buf->size() < op_size) {
+        PLOG_ERROR(("desc", "op size is too small") //
+                   ("op_size", op_size)             //
+                   ("buf_size", buf->size()));
+        return nullptr;
+    }
     auto op = decode(op_meta.version, op_meta.type, buf);
     return op;
 }

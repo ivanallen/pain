@@ -31,6 +31,7 @@ public:
     struct SnapshotArg {
         braft::SnapshotWriter* writer;
         braft::Closure* done;
+        ContainerPtr container;
     };
 
     static void* save_snapshot(void* arg);
