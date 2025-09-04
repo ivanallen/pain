@@ -84,7 +84,7 @@
       shell: 
         chdir: ./deployment/asura/{{ listen_port }}
         cmd: >
-          start-stop-daemon --stop --pidfile asura.pid --remove-pidfile
+          start-stop-daemon --stop --pidfile asura.pid --remove-pidfile || true
       when: stat_result.stat.exists
     - name: remove working dir
       file: path=./deployment/asura/{{ listen_port }} state=absent

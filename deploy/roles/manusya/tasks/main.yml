@@ -80,6 +80,6 @@
       shell: 
         chdir: ./deployment/manusya/{{ listen_port }}
         cmd: >
-          start-stop-daemon --stop --pidfile manusya.pid --remove-pidfile
+          start-stop-daemon --stop --pidfile manusya.pid --remove-pidfile || true
     - name: remove working dir
       file: path=./deployment/manusya/{{ listen_port }} state=absent
