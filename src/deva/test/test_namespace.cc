@@ -5,6 +5,7 @@
 
 #include <pain/base/path.h>
 #include "common/rocksdb_store.h"
+#include "common/txn_manager.h"
 #include "deva/namespace.h"
 
 using namespace pain;
@@ -252,4 +253,35 @@ TEST_F(TestNamespace, lookup_and_list) {
             ASSERT_FALSE(true) << "unexpected entry: " << entry.name;
         }
     }
+}
+
+TEST_F(TestNamespace, lookup_and_list_in_txn) {
+    Namespace ns(_store);
+    UUID a = UUID::from_str_or_die("00000000-0000-0000-0000-000000000001");
+    UUID b = UUID::from_str_or_die("00000000-0000-0000-0000-000000000002");
+    UUID c = UUID::from_str_or_die("00000000-0000-0000-0000-000000000003");
+    UUID d = UUID::from_str_or_die("00000000-0000-0000-0000-000000000004");
+    UUID e = UUID::from_str_or_die("00000000-0000-0000-0000-000000000005");
+    UUID f = UUID::from_str_or_die("00000000-0000-0000-0000-000000000006");
+    auto txn = _store->begin_txn();
+    PAIN_TXN(txn.get()) {
+        auto status = ns.create(ns.root(), "a", FileType::kDirectory, a);
+        EXPECT_TRUE(status.ok()) << status.error_str();
+        status = ns.create(ns.root(), "b", FileType::kDirectory, b);
+        EXPECT_TRUE(status.ok()) << status.error_str();
+        status = ns.create(ns.root(), "c", FileType::kDirectory, c);
+        EXPECT_TRUE(status.ok()) << status.error_str();
+        return status;
+    };
+
+    std::list<DirEntry> entries;
+    ns.list(ns.root(), &entries);
+    ASSERT_EQ(entries.size(), 3) << fmt::format("{}", fmt::join(entries, ", "));
+    EXPECT_EQ(entries.front().name, "a");
+    entries.pop_front();
+    EXPECT_EQ(entries.front().name, "b");
+    entries.pop_front();
+    EXPECT_EQ(entries.front().name, "c");
+    entries.pop_front();
+    EXPECT_EQ(entries.size(), 0);
 }

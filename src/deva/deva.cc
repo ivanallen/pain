@@ -1,6 +1,7 @@
 #include "deva/deva.h"
 #include <pain/base/plog.h>
 #include <pain/base/uuid.h>
+#include "common/txn_manager.h"
 #include "deva/macro.h"
 
 #define DEVA_METHOD(name)                                                                                              \
@@ -149,12 +150,44 @@ DEVA_METHOD(SealAndNewChunk) {
     return Status::OK();
 }
 
+Status Deva::set_applied_index(int64_t index) {
+    if (index <= _applied_index) {
+        PLOG_WARN(("desc", "index is applied already")("index", index));
+        return Status::OK();
+    }
+    auto in_txn = common::TxnManager::instance().in_txn();
+    auto this_txn = _store->begin_txn();
+    auto txn = in_txn ? common::TxnManager::instance().get_txn_store() : this_txn.get();
+    if (txn == nullptr) {
+        return Status(EIO, "Failed to begin transaction");
+    }
+    auto status = txn->hset(_meta_key, _applied_index_key, std::to_string(index));
+    return status;
+    if (in_txn) {
+        return Status::OK();
+    }
+
+    status = txn->commit();
+    return status;
+}
+
 Status Deva::save_snapshot(std::string_view path, std::vector<std::string>* files) {
     return _store->check_point(path.data(), files);
 }
 
 Status Deva::load_snapshot(std::string_view path) {
-    return _store->recover(path.data());
+    auto status = _store->recover(path.data());
+    if (!status.ok()) {
+        return status;
+    }
+    // get applied index
+    std::string applied_index_str;
+    status = _store->hget(_meta_key, _applied_index_key, &applied_index_str);
+    if (!status.ok()) {
+        return status;
+    }
+    _applied_index = std::stoll(applied_index_str);
+    return Status::OK();
 }
 
 } // namespace pain::deva

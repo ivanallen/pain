@@ -16,6 +16,7 @@
 #include <fmt/std.h>
 
 #include "common/rocksdb_txn_store.h"
+#include "common/txn_manager.h"
 
 // NOLINTBEGIN(readability-magic-numbers)
 
@@ -106,6 +107,20 @@ TEST_F(TestRocksdbTxnStore, Hset) {
     ASSERT_TRUE(status.ok()) << status.error_str();
 
     // 验证数据已经提交到数据库
+    ASSERT_TRUE(key_exists(expected_key));
+    ASSERT_EQ(get_value(expected_key), "test_value");
+}
+
+TEST_F(TestRocksdbTxnStore, TxnGuard) {
+    auto txn = create_transaction();
+    std::string expected_key = "test_key\1test_field";
+    PAIN_TXN(txn.get()) {
+        auto status = txn->hset("test_key", "test_field", "test_value");
+        EXPECT_TRUE(status.ok()) << status.error_str();
+        EXPECT_FALSE(key_exists(expected_key));
+        return status;
+    };
+
     ASSERT_TRUE(key_exists(expected_key));
     ASSERT_EQ(get_value(expected_key), "test_value");
 }

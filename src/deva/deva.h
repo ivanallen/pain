@@ -1,11 +1,16 @@
 #pragma once
 
+#include <pain/base/plog.h>
 #include <pain/base/types.h>
 #include <boost/intrusive_ptr.hpp>
 #include "pain/proto/deva_store.pb.h"
 #include "common/store.h"
+#include "common/txn_manager.h"
+#include "common/txn_store.h"
 #include "deva/container.h"
 #include "deva/namespace.h"
+#include "deva/op.h"
+
 #define DEVA_ENTRY(name)                                                                                               \
     Status name([[maybe_unused]] int32_t version,                                                                      \
                 [[maybe_unused]] const pain::proto::deva::store::name##Request* request,                               \
@@ -15,7 +20,25 @@
                    [[maybe_unused]] const pain::proto::deva::store::name##Request* request,                            \
                    [[maybe_unused]] pain::proto::deva::store::name##Response* response,                                \
                    [[maybe_unused]] int64_t index) {                                                                   \
-        return name(version, request, response, index);                                                                \
+        if (!need_apply(OpType::k##name)) {                                                                            \
+            return name(version, request, response, index);                                                            \
+        }                                                                                                              \
+        if (check_index_is_applied(index)) {                                                                           \
+            PLOG_INFO(("desc", "index is applied already")("index", index));                                           \
+            return Status::OK();                                                                                       \
+        }                                                                                                              \
+        auto txn = _store->begin_txn();                                                                                \
+        auto status = Status::OK();                                                                                    \
+        PAIN_TXN(txn.get()) {                                                                                          \
+            status = set_applied_index(index);                                                                         \
+            if (!status.ok()) {                                                                                        \
+                PLOG_ERROR(("desc", "set applied index failed")("index", index)("error", status.error_str()));         \
+                return status;                                                                                         \
+            }                                                                                                          \
+            status = name(version, request, response, index);                                                          \
+            return status;                                                                                             \
+        };                                                                                                             \
+        return status;                                                                                                 \
     }
 
 namespace pain::deva {
@@ -41,12 +64,19 @@ public:
 
 private:
     Status create(const std::string& path, const UUID& id, FileType type);
+    Status set_applied_index(int64_t applied_index);
+    bool check_index_is_applied(int64_t index) const {
+        return index != 0 && index <= _applied_index;
+    }
 
 private:
     std::atomic<int> _use_count;
     common::StorePtr _store;
     Namespace _namespace;
     std::unordered_map<UUID, proto::FileInfo> _file_infos;
+    const char* _meta_key = "meta";
+    const char* _applied_index_key = "applied_index";
+    int64_t _applied_index = 0;
 
     friend void intrusive_ptr_add_ref(Deva* deva) {
         ++deva->_use_count;
